@@ -2,7 +2,7 @@ let express = require('express');
 let app = express();
 
 let path = require('path');
-let favicon = require('serve-favicon');
+//let favicon = require('serve-favicon');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
@@ -46,7 +46,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 跨域请求设置
 app.all('*', function(req, res, next) {
   // 只允许127.0.0.1跨域访问
-  res.header("Access-Control-Allow-Origin", "http://192.168.1.205:3001");
+  //res.header("Access-Control-Allow-Origin", "http://192.168.1.205:3001");
+  res.header("Access-Control-Allow-Origin", '*');
   res.header('Access-Control-Allow-Credentials', true);
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
   res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
@@ -76,5 +77,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+console.log('http://localhost:3000/');
 
 module.exports = app;
