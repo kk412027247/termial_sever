@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+.idea/
+async.js
+node_modules/
+routes/1.html
+routes/list.json
+yarn-error.log
+promise.js
+1.txt
+2.js
+2.txt
+3.txt

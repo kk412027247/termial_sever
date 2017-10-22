@@ -1,15 +1,15 @@
-let express = require('express');
-let app = express();
+const express = require('express');
+const app = express();
 
-let path = require('path');
-//let favicon = require('serve-favicon');
-let logger = require('morgan');
-let cookieParser = require('cookie-parser');
-let bodyParser = require('body-parser');
+const path = require('path');
+//const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 //session模块设置
-let session=require('express-session');
-let RedisStore=require('connect-redis')(session);
+const session=require('express-session');
+const RedisStore=require('connect-redis')(session);
 app.use(session({
   secret:'cc',
   store:new RedisStore({
@@ -25,8 +25,9 @@ app.use(session({
 
 
 
-let index = require('./routes/index');
-let users = require('./routes/users');
+//const index = require('./routes/index');
+const users = require('./routes/users');
+const webRouter = require ('./routes/webRouter');
 
 
 
@@ -46,8 +47,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 跨域请求设置
 app.all('*', function(req, res, next) {
   // 只允许127.0.0.1跨域访问
-  //res.header("Access-Control-Allow-Origin", "http://192.168.1.205:3001");
-  res.header("Access-Control-Allow-Origin", '*');
+  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:3000");
+  //res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Credentials', true);
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
   res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
@@ -56,13 +57,14 @@ app.all('*', function(req, res, next) {
   next();
 });
 
-app.use('/', index);
+
+app.use('/', webRouter);
 app.use('/users', users);
 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  let err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -78,6 +80,6 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-console.log('http://localhost:3000/');
+console.log('http://localhost:3001/');
 
 module.exports = app;
