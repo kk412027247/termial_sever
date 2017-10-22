@@ -21,20 +21,24 @@ exports.getList = (req, res)=>{
   list['WIFI'] = false;
   list['是否支持网络热点'] = false;
 
+
   superAgent.get('http://mobile.zol.com.cn/')
     .charset()
     .then((success)=>{
       const $ = cheerio.load(success.text);
       $('#manu-switc-1 ul li .title a').each((index, element)=>{
-        list['generalUrl'] = $(element).attr('href');
+        //console.log('generalUrl',$(element).attr('href'));
+        //list['generalUrl'] = $(element).attr('href');
         superAgent.get($(element).attr('href'))
           .charset()
           .then((success)=>{
             const $ = cheerio.load(success.text);
             let hrefParam =  $('#_j_tag_nav .nav__list li').eq(3).find('a').attr('href');
             let href = 'http://detail.zol.com.cn'+hrefParam;
-            list['url'] =  href;
-            list['价格'] = $('#_j_local_price a.price').text();
+            //console.log('href',href);
+            //list['url'] =  href;
+            //list['价格'] = $('#_j_local_price a.price').text();
+            
 
             superAgent.get(href)
               .charset()
@@ -191,14 +195,19 @@ exports.getList = (req, res)=>{
                 getListModel.create(list ,(err)=>{
                   if(err) console.log('从首页存入失败'+err);
                 });
-                //存储输出查询
-                //console.log(list);
 
               });
 
           });
       });
       res.send(JSON.stringify('存一堆东东'));
-    })
+    });
 };
 
+exports.query = (req,res)=>{
+  console.log(req.body.query);
+  getListModel.query(req.body.query,(err, doc)=>{
+    if(err) console.log(err);
+    res.send(doc)
+  });
+};
