@@ -3,7 +3,7 @@ const router = express.Router();
 
 const getListController = require('../controllers/getList');
 
-router.get('/query', getListController.getList);
+router.get('/getList', getListController.getList);
 
 router.post('/query', getListController.query);
 
