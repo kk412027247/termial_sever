@@ -5,6 +5,8 @@ const getListController = require('../controllers/getList');
 
 router.get('/getList', getListController.getList);
 
+router.get('/getPrice', getListController.getPrice);
+
 router.post('/query', getListController.query);
 
 module.exports = router;

@@ -20,45 +20,40 @@ exports.getList = (req, res)=>{
   list['是否支持蓝牙'] = false;
   list['WIFI'] = false;
   list['是否支持网络热点'] = false;
-
+  list['url'] = '';
+  list['价格'] = '';
+  list['子型号'] = '';
+  list['双卡制式'] = '';
+  list['操作系统版本'] = '';
+  list['CSFB']= '';
+  list['单卡双待'] = '';
+  list['上行载波聚合'] = '';
+  list['下行载波聚合']  = '';
+  list['VOLTE'] = '';
 
   superAgent.get('http://mobile.zol.com.cn/')
     .charset()
     .then((success)=>{
       const $ = cheerio.load(success.text);
       $('#manu-switc-1 ul li .title a').each((index, element)=>{
-        //console.log('generalUrl',$(element).attr('href'));
-        //list['generalUrl'] = $(element).attr('href');
         superAgent.get($(element).attr('href'))
           .charset()
           .then((success)=>{
             const $ = cheerio.load(success.text);
             let hrefParam =  $('#_j_tag_nav .nav__list li').eq(3).find('a').attr('href');
             let href = 'http://detail.zol.com.cn'+hrefParam;
-            //console.log('href',href);
-            //list['url'] =  href;
-            //list['价格'] = $('#_j_local_price a.price').text();
-            
-
             superAgent.get(href)
               .charset()
               .then((success)=>{
                 const $ = cheerio.load(success.text);
-
-                //品牌+型号+价格
+                list['全称'] = $('#page-title').text().replace(/参数/,'');
                 list['厂商'] = $('.breadcrumb a').eq(2).text().replace(/手机/ig,'');
                 list['品牌(英文)'] = $('#page-title').text().match(/(.+)\（/)[1].replace(new RegExp(list['厂商']),'');
                 list['型号'] = $('#page-title').text().match(/(.+)\（/)[1].replace(new RegExp(list['厂商']),'');
-                list['子型号'] = $('#page-title').text().match(/(.+)\（/)[1].replace(new RegExp(list['厂商']),'');
-
+                list['generalUrl'] = 'http://detail.zol.com.cn'+$('.breadcrumb a').eq(3).attr('href');
                 $('#newTb table li span').each((index, element)=>{
                   if($(element).text() !== '') detail.push($(element).text())
                 });
-
-                // detail.forEach((item, index)=> {
-                //   if(index % 2 === 0) list[item] = detail[index + 1]
-                // });
-
                 detail.forEach((item, index)=> {
                   switch(item){
                     case '支持频段':
@@ -192,6 +187,7 @@ exports.getList = (req, res)=>{
                       break;
                   }
                 });
+               // console.log(list);
                 getListModel.create(list ,(err)=>{
                   if(err) console.log('从首页存入失败'+err);
                 });
@@ -204,6 +200,25 @@ exports.getList = (req, res)=>{
     });
 };
 
+exports.getPrice = (req, res) =>{
+  getListModel.find({},{generalUrl:1},(err,doc)=>{
+    doc.forEach(item=>{
+      superAgent.get(item.generalUrl)
+      .charset()
+      .then((success)=>{
+        const $ = cheerio.load(success.text);
+        let price = $('#_j_local_price a.price').text();
+        let fullName =  $('.product-model__name').text();
+        getListModel.update({'全称':fullName},{$set:{'价格':price}},(err,doc)=>{
+          console.log(doc);
+        });
+      })
+    })
+  });
+  res.send('1')
+};
+
+
 exports.query = (req,res)=>{
   console.log(req.body.query);
   getListModel.query(req.body.query,(err, doc)=>{
@@ -211,3 +226,4 @@ exports.query = (req,res)=>{
     res.send(doc)
   });
 };
+
