@@ -220,7 +220,6 @@ exports.getPrice = (req, res) =>{
 
 
 exports.query = (req,res)=>{
-  console.log(req.body.query);
   getListModel.query(req.body.query,(err, doc)=>{
     if(err) console.log(err);
     res.send(doc)
