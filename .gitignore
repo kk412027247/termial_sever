@@ -14,6 +14,5 @@ promise.js
 4.js
 4.txt
 asyncSuperagent.js
-middlewares/
 /auth.js
 
