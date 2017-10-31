@@ -7,13 +7,45 @@ exports.getList = (req, res)=>{
 
   const list = {};
   const detail = [];
+
+  list['子型号'] = '';
+  list['市场定位'] = '';
+  list['终端支持能力'] = '';
+  list['终端支持能力子项'] = '';
+  list['是否支持FR'] = '' ;
+  list['LTE设备是否支持CSFB'] = '';
+  list['LTE设备是否支持单卡双待'] = '';
+  list['TD-LTE-Category等级'] = '';
+  list['是否支持上行载波聚合'] = '';
+  list['上行载波聚合支持明细'] = '';
+  list['是否支持下行载波聚合'] = '';
+  list['下行载波聚合支持明细'] = '';
+  list['是否支持VOLTE']  = '';
+  list['VoLTE是否支持语音通话']='';
+  list['VoLTE是否支持视频通话']='';
+  list['CPU芯片型号(ARM版本)'] = '';
+  list['是否触摸屏'] = '' ;
+  list['屏幕个数'] = '1' ;
+  list['是否支持多点触摸'] = '';
+  list['主屏材质']= '6';
+  list['主屏色深'] = '';
+  list['输入'] = '';
+  list['是否支持快速充电'] = '';
+  list['键盘类型'] = '';
+  list['卡槽数量']  = '1' ;
+  list['SIM卡类型'] = '';
+  list['是否支持双卡双待'] = '0';
+  list['双卡制式'] = '';
+  list['双卡SIM卡IMEI是否相同'] = '';
+
+
+
   list['是否支持GPS'] = false;
   list['是否支持NFC'] = false;
-  list['是否支持FR'] = false ;
-  list['是否触摸屏'] = false ;
-  list['是否支持多点触摸'] = false;
-  list['屏幕个数'] = 1 ;
-  list['是否支持快速充电'] = false;
+
+
+
+
   list['卡槽数量'] = 1;
   list['通讯录是否支持名片式号码簿']=true;
   list['通讯录是否支持名片式号码簿']=true;
@@ -29,7 +61,8 @@ exports.getList = (req, res)=>{
   list['单卡双待'] = '';
   list['上行载波聚合'] = '';
   list['下行载波聚合']  = '';
-  list['VOLTE'] = '';
+
+
 
   superAgent.get('http://mobile.zol.com.cn/')
     .charset()
@@ -47,7 +80,7 @@ exports.getList = (req, res)=>{
               .then((success)=>{
                 const $ = cheerio.load(success.text);
                 list['全称'] = $('#page-title').text().replace(/参数/,'');
-                list['厂商'] = $('.breadcrumb a').eq(2).text().replace(/手机/ig,'');
+                list['厂商(中文)'] = $('.breadcrumb a').eq(2).text().replace(/手机/ig,'');
                 list['品牌(英文)'] = $('#page-title').text().match(/(.+)\（/)[1].replace(new RegExp(list['厂商']),'');
                 list['型号'] = $('#page-title').text().match(/(.+)\（/)[1].replace(new RegExp(list['厂商']),'');
                 list['generalUrl'] = 'http://detail.zol.com.cn'+$('.breadcrumb a').eq(3).attr('href');
@@ -62,7 +95,6 @@ exports.getList = (req, res)=>{
                       break ;
                     case '4G网络':
                       list['网络制式'] =  detail[index + 1];
-                      list['终端支持能力'] = detail[index + 1];
                       list['是否支持FR'] = true;
                       break ;
                     case '3G网络':
@@ -78,9 +110,6 @@ exports.getList = (req, res)=>{
                       list['是否支持蓝牙'] = detail[index + 1].includes('蓝牙');
                       //list['支持的蓝牙版本'] = detail[index + 1].match(/(蓝牙[^\，]+)/)[1];
                       break;
-                    case 'CPU型号':
-                      list['CPU芯片型号(ARM版本)'] = detail[index + 1];
-                      break;
                     case '手机尺寸':
                       list['机长(mm)'] = detail[index + 1].match(/(^[^x]+)/)[1];
                       list['机宽(mm)'] = detail[index + 1].match(/x([^x]+)x/)[1];
@@ -90,33 +119,37 @@ exports.getList = (req, res)=>{
                       list['重量(g)'] = detail[index + 1].replace(/g/,'');
                       break;
                     case '造型设计':
-                      list['外观'] = detail[index + 1].replace(/g/,'');
+                      list['外观'] =  ['翻盖','直板','滑盖','侧滑盖','旋转屏','全键盘','全触屏'].findIndex(item=> item === detail[index + 1])+1    ;
                       break;
                     case '手机类型':
-                      list['市场定位'] = detail[index + 1];
-                      list['是否智能机'] = detail[index + 1].includes('智能');
-                      list['是否支持快速充电'] = detail[index + 1].includes('快充');
+
+                      list['是否智能机'] = detail[index + 1].includes('智能') ? '1' : '0' ;
+                      list['是否支持快速充电'] = detail[index + 1].includes('快充') ? '是' : '否';
                       break;
                     case '上市日期':
-                      list['上市时间'] = detail[index + 1];
+                      list['上市时间'] = detail[index + 1].replace(/[年,月]/g, '').substring(0,6);
                       break;
                     case '核心数':
                       list['CPU数量'] = detail[index + 1];
+                      break;
+                    case 'CPU频率':
+                      list['CPU时钟频率(MHz)'] = detail[index + 1]*1000 + '';
                       break;
                     case 'CPU型号':
                       list['CPU厂家'] = detail[index + 1].match(/^([\S]+)/)[1];
                       list['CPU型号'] = detail[index + 1];
                       break;
                     case '触摸屏类型':
-                      list['是否触摸屏'] = true;
-                      list['触摸屏类型'] = detail[index + 1];
-                      list['是否支持多点触摸'] = detail[index + 1].includes('多点');
+                      list['键盘类型'] = '1';
+                      list['是否触摸屏'] = '是';
+                      list['触摸屏类型'] = detail[index + 1].includes('电容') ? '1' : detail[index + 1].includes('电阻') ? '2' : '3';
+                      list['是否支持多点触摸'] = detail[index + 1].includes('多点') ? '是' : '否' ;
                       break;
                     case '副屏参数':
                       list['屏幕个数'] = 2;
                       break;
                     case '主屏尺寸':
-                      list['主屏大小(英寸)'] = detail[index + 1];
+                      list['主屏大小(英寸)'] = detail[index + 1].replace(/英寸/, '');
                       break;
                     case '主屏分辨率':
                       list['主屏分辨率(横)'] = detail[index + 1].match(/([\d]+)x/)[1];
@@ -141,11 +174,10 @@ exports.getList = (req, res)=>{
                     case '理论通话时间':
                       list['通话时间'] = detail[index + 1];
                       break;
-                    case '操作类型':
-                      list['操作类型'] = detail[index + 1];
-                      break;
                     case 'SIM卡':
-                      list['SIM卡'] = detail[index + 1];
+                      list['卡槽数量'] = detail[index + 1].includes('双卡') ? '2' : '1';
+                      list['是否支持双卡双待'] = detail[index + 1].includes('双卡') ? '1' : '0';
+                      list['SIM卡类型'] = detail[index + 1].replace(/[^\，]*\，/,'');
                       break;
                     case '摄像头类型':
                       list['摄像头'] = detail[index + 1];
