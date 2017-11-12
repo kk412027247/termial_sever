@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/terminal',{useMongoClient:true});
+mongoose.Promise = global.Promise;
+
 
 const getListSchema = new mongoose.Schema({
   '厂商(中文)':String,
@@ -137,7 +139,7 @@ const getListSchema = new mongoose.Schema({
   '是否支持显示激活状态':String,
   '是否支持显示数据传输':String,
   '全称':String,
-  'generalUrl': String,
+  'url': String,
   date:{type:Date, default:Date.now},
   'author': String,
 });
@@ -182,6 +184,11 @@ getListSchema.statics.check = function(query){
 getListSchema.statics.query = function (query,callback){
   console.log(query);
   this.find({$text:{$search: query}},callback)
+};
+
+getListSchema.statics.updates = function(update, callback){
+  console.log(update._id);
+  this.update({_id:update._id},update,callback)
 };
 
 
