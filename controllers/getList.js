@@ -116,7 +116,7 @@ exports.getList = (req, res)=>{
     const res = await superAgent(url).charset();
     const $ = await cheerio.load(res.text);
     list['全称'] = await $('h1.product-model__name').text();
-    list['url'] = await 'http://detail.zol.com.cn' + $('div#_j_tag_nav ul li a').eq(3).attr('href');
+    list['url'] = await 'http://detail.zol.com.cn' + $('div#_j_tag_nav ul li a').eq(2).attr('href');
     list['市场价格'] = await $('b.price-type').text();
     list['厂商(中文)'] = await $('.breadcrumb a').eq(2).text().replace(/手机/ig,'');
     list['品牌(英文)'] = await list['全称'].replace(/（.*/, '').replace(new RegExp(list['厂商(中文)']), '');
