@@ -16,6 +16,8 @@ app.use(session({
     port:6379,
     host:'127.0.0.1'
   }),
+  //状态时长
+  cookie:({maxAge:  60000}),
   resave:true,
   saveUninitialized:true
 }));

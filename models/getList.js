@@ -4,6 +4,7 @@ mongoose.Promise = global.Promise;
 
 
 const getListSchema = new mongoose.Schema({
+  'tac':String,
   '厂商(中文)':String,
   '品牌(英文)':String,
   '型号':String,

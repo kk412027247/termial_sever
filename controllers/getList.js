@@ -11,7 +11,7 @@ exports.getList = (req, res)=>{
 
   const list = {};
 
-
+  list['tac'] = '';
   list['子型号'] = '';
   list['市场定位'] = '';
   list['终端支持能力'] = '';
@@ -335,7 +335,7 @@ exports.add=(req, res)=>{
   
   const list = {};
 
-
+  list['tac'] = '';
   list['子型号'] = '';
   list['市场定位'] = '';
   list['终端支持能力'] = '';
