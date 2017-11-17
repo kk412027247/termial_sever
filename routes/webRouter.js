@@ -8,13 +8,15 @@ const check = require('../check/check');
 
 router.get('/getList', getListController.getList);
 router.get('/getPrice', getListController.getPrice);
-router.post('/query',check.check, getListController.query);
+router.post('/query',check.checkQuery, getListController.query);
 router.post('/updates', getListController.updates);
 router.post('/add', getListController.add);
+
 router.post('/signIn', authController.signIn);
 router.post('/register', check.check3, authController.register);
 router.get('/signOut', authController.signOut);
 router.get('/getSession', authController.getSession);
+router.post('/changePassword',authController.changePassword);
 
 router.get('/download',downloadController.download);
 

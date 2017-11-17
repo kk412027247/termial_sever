@@ -249,7 +249,7 @@ exports.getList = (req, res)=>{
           break;
         case '操作系统':
           list1['操作系统'] = ['ophone','windows mobile','windows ce','Android','symbian','linux','palm',
-            'mkt','其他','iOS','Windows','blackberry','oms','meego'].findIndex(item=>detail[index + 1].includes(item))+1   ;
+            'mkt','其他','iOS','Windows','blackberry','oms','meego'].findIndex(item=>detail[index + 1].includes(item))+1;
           list1['操作系统版本'] = detail[index + 1];
           break;
         case 'RAM容量':
@@ -455,23 +455,25 @@ const getDetail = async(url)=>{
   const detail = await $('div#newTb table li span').map((index, element)=>{
     if($(element).text() !== ''){return $(element).text()}
   }).toArray();
-
-
+  //console.log(detail);
 
   await detail.forEach((item, index)=>{
     switch(item){
       case '支持频段':
-        list3['支持TD-LTE频段'] = detail[index + 1].includes('TD-LTE')? detail[index + 1].match(/TD-LTE\s([^\\]+)\n/)[1] :'';
-        let i =0;
-        list3['网络制式'] = ['TD-SCDMA','GSM','CDMA','EDGE','WCDMA','CDMA2000','CDMA 1X',
-          'CDMA EVDO'].reduce((pre, cur)=>{
-          i++;
-          if(detail[index + 1].includes(cur)){
-            return pre.concat(i)
-          }else{
-            return pre
-          }},[]).toString();
+        //list3['支持TD-LTE频段'] = detail[index + 1].includes('TD-LTE')? detail[index + 1].match(/TD-LTE\s([^\\]+)\n/)[1] :'';
+        list3['支持TD-LTE频段'] = detail[index+1];
+        // let i =0;
+        // list3['网络制式'] = ['TD-SCDMA','GSM','CDMA','EDGE','WCDMA','CDMA2000','CDMA 1X',
+        //   'CDMA EVDO'].reduce((pre, cur)=>{
+        //   i++;
+        //   if(detail[index + 1].includes(cur)){
+        //     return pre.concat(i)
+        //   }else{
+        //     return pre
+        //   }},[]).toString();
+        list3['网络制式'] = detail[index + 1];
         list3['频段'] = detail[index + 1];
+
         break ;
       case '4G网络':
         list3['是否支持FR'] = '1';
@@ -532,7 +534,6 @@ const getDetail = async(url)=>{
         break;
       case '主屏材质':
         list3['主屏材质'] = ['AMOLED','SLCD','TFT','ASV','IPS','其他','OGS'].findIndex(item=>detail[index + 1].includes(item))+1+'';
-
         break;
       case '机身接口':
         list3['充电器接口'] = detail[index + 1].replace(/^[^\，]+\，/, '');
@@ -550,9 +551,11 @@ const getDetail = async(url)=>{
         list3['通话时间(小时)'] = detail[index + 1];
         break;
       case 'SIM卡':
+        console.log(item,detail[index+1]);
         list3['卡槽数量'] = detail[index + 1].includes('双卡') ? '2' : '1';
         list3['是否支持双卡双待'] = detail[index + 1].includes('双卡') ? '1' : '0';
-        list3['SIM卡类型'] = detail[index + 1].replace(/[^\，]*\，/,'');
+        //list3['SIM卡类型'] = detail[index + 1].replace(/[^\，]*\，/,'');
+        list3['SIM卡类型'] = detail[index + 1];
         break;
       case '摄像头类型':
         list3['摄像头'] = detail[index + 1];
