@@ -15,7 +15,7 @@ app.use(session({
   secret:'cc',
   store:new RedisStore({
     port:6379,
-    host:host.redis
+    host:'127.0.0.1'
   }),
   
   resave:true,

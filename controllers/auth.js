@@ -43,9 +43,10 @@ exports.signOut = (req, res)=>{
 
 exports.getSession = (req, res)=>{
   if(req.session.userInfo) {
-    console.log('getSession',req.session.userInfo);
+    console.log('getSession success');
     res.send(JSON.stringify(req.session.userInfo))
   }else{
+    console.log('getSession failure');
     res.send(JSON.stringify({}))
   }
 };
