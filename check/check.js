@@ -9,7 +9,7 @@ exports.check3 = (req,res,next)=>{
   }
 };
 
-exports.checkQuery = (req,res,next)=>{
+exports.query = (req,res,next)=>{
   if(req.session.userInfo.level >= 1 &&  req.session.userInfo.level <= 3){
     next()
   }else{

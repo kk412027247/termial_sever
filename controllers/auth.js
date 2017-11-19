@@ -51,8 +51,9 @@ exports.getSession = (req, res)=>{
 };
 
 exports.changePassword = (req, res) =>{
-  console.log(req.body);
+  console.log('修改密码请求体',req.body);
   authModel.changePassword(req.body,(err,doc)=>{
+    console.log('密码修改结果',doc);
     res.send(JSON.stringify(doc))
   })
 };

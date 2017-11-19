@@ -1,5 +1,5 @@
 const fs =require('fs');
-//const iconv = require('iconv-lite');
+const iconv = require('iconv-lite');
 
 
 const getListModel = require('../models/getList');
@@ -26,10 +26,14 @@ exports.download = (req, res) =>{
       .pipe(fs.createWriteStream(file));
 
     fs.watchFile(file,()=>{
+      fs.unwatchFile(file);
+      const buffer = fs.readFileSync(file);
+      //这里生成了GBK格式的文件给excel打开；
+      fs.writeFileSync(file,iconv.encode(buffer,'GB18030'));
       res.download(file,()=>{
         fs.unlinkSync(file)
       });
-      fs.unwatchFile(file);
+
     });
 
     console.log(`${file}文件生成中`);

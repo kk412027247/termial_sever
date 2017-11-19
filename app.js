@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const host = require('./host');
 
 const path = require('path');
 //const favicon = require('serve-favicon');
@@ -14,7 +15,7 @@ app.use(session({
   secret:'cc',
   store:new RedisStore({
     port:6379,
-    host:'127.0.0.1'
+    host:host.redis
   }),
   
   resave:true,
@@ -48,7 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 跨域请求设置
 app.all('*', function(req, res, next) {
   // 只允许127.0.0.1跨域访问
-  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:3000");
+  res.header("Access-Control-Allow-Origin", host.acao);
   //res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Credentials', true);
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");

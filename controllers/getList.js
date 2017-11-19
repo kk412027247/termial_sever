@@ -319,9 +319,12 @@ exports.getPrice = (req, res) =>{
 exports.query = (req,res)=>{
   getListModel.query(req.body.query,(err, doc)=>{
     if(err) console.log(err);
+    //console.log('查询结果',doc);
     res.send(doc)
   });
 };
+
+
 
 
 exports.updates = (req, res) =>{
@@ -600,9 +603,9 @@ const getDetail = async(url)=>{
 const add = async (url) =>{
   const data1 = {...list1};
   const data2 = await getUrl(url);
-  if(data2['全称'] === ''){throw '该页面无效'}
+  if(data2['全称'] === '') throw {status:'invalid'};
   const check= await getListModel.findOne({'全称':data2['全称']});
-  if(check !== null ){throw '该数据已经存在，不用再存了'}
+  if(check !== null ) throw {...check._doc,status:'exist'};
   const data3 = await getDetail(data2.url);
   await getListModel.create({...data1, ...data2, ...data3});
   return getListModel.findOne({'全称':data2['全称']});
@@ -611,5 +614,5 @@ const add = async (url) =>{
 exports.add=(req, res)=>{
   add(req.body.add)
     .then(list => res.send(list))
-    .catch(err => res.send(JSON.stringify(err)))
+    .catch(msg => res.send(JSON.stringify(msg)))
 };

@@ -8,7 +8,7 @@ const check = require('../check/check');
 
 router.get('/getList', getListController.getList);
 router.get('/getPrice', getListController.getPrice);
-router.post('/query',check.checkQuery, getListController.query);
+router.post('/query',check.query, getListController.query);
 router.post('/updates', getListController.updates);
 router.post('/add', getListController.add);
 

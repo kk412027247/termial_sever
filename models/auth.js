@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/terminal',{useMongoClient: true});
+const host = require('../host');
+mongoose.connect(`mongodb://${host.mongoose}/terminal`,{useMongoClient: true});
 mongoose.Promise = global.Promise;
 
 const authSchema = new mongoose.Schema({
   'userName':String,
-  'passWord':String,
+  'passWord':{type:String,default:'123'},
   'level':{type:Number, default:1},
 });
 
