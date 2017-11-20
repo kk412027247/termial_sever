@@ -213,7 +213,6 @@ getListSchema.plugin(mongooseToCsv, {
     "补光灯个数":"补光灯个数",
     "闪光灯个数":"闪光灯个数",
     "图像分辨率":"图像分辨率",
-    "照相功能":"照相功能",
     "图像格式":"图像格式",
     "视频分辨率":"视频分辨率",
     "视频帧数(fps)":"视频帧数(fps)",
@@ -310,7 +309,13 @@ getListSchema.plugin(mongooseToCsv, {
         return doc["网络制式"]
       }
     },
-
+    "照相功能":(doc)=>{
+      if(doc["照相功能"] !== undefined){
+        return doc["照相功能"].replace(/(\n)|(,)|(，)/g,'')
+      }else{
+        return doc["照相功能"]
+      }
+    },
 
     // "支持TD-LTE频段":(doc)=>(doc["支持TD-LTE频段"].replace(/\n/g,'')),
     // "网络制式":(doc)=>(doc["网络制式"].replace(/\n/g,'')),
