@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const host = require('../host');
-mongoose.connect(`mongodb://${host.mongoose}/terminal`,{useMongoClient:true});
+mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient:true});
 mongoose.Promise = global.Promise;
 const mongooseToCsv = require('mongoose-to-csv');
 
