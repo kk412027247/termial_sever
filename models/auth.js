@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const host = require('../host');
+//const host = require('../host');
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient: true});
 mongoose.Promise = global.Promise;
 

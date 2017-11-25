@@ -3,12 +3,15 @@ const router = express.Router();
 const getListController = require('../controllers/getList');
 const authController = require('../controllers/auth');
 const downloadController = require('../controllers/download');
+const tacController = require('../controllers/tac');
 const check = require('../check/check');
 
 
 router.get('/getList', getListController.getList);
 router.get('/getPrice', getListController.getPrice);
 router.post('/query',check.query, getListController.query);
+router.post('/getInfoTac', getListController.getInfoTac);
+
 router.post('/updates', getListController.updates);
 router.post('/add', getListController.add);
 
@@ -19,6 +22,8 @@ router.get('/getSession', authController.getSession);
 router.post('/changePassword',authController.changePassword);
 
 router.get('/download',downloadController.download);
+
+router.post('/getTac',tacController.query);
 
 
 

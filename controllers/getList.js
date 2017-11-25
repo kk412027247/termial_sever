@@ -1,4 +1,5 @@
 const getListModel = require('../models/getList');
+const tacModel = require('../models/tac');
 const charset = require ('superagent-charset');
 const superAgent = charset(require('superagent'));
 
@@ -615,4 +616,22 @@ exports.add=(req, res)=>{
   add(req.body.add)
     .then(list => res.send(list))
     .catch(msg => res.send(JSON.stringify(msg)))
+};
+
+const getInfoTac = async (id)=>{
+  const info =await getListModel.findOne(id);
+  const tac = await tacModel.find({
+    "品牌1":info["厂商(中文)"], "型号1":info["型号"]
+  },{
+    "TAC":1,"_id":0
+  });
+  return {...info._doc,tac};
+};
+
+exports.getInfoTac = (req,res)=>{
+ getInfoTac(req.body)
+ .then(infoTac=>{
+   res.send(JSON.stringify(infoTac))
+ })
+ .catch(err=>send(JSON.stringify(err)))
 };
