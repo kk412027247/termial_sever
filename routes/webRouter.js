@@ -11,6 +11,7 @@ router.get('/getList', getListController.getList);
 router.get('/getPrice', getListController.getPrice);
 router.post('/query',check.query, getListController.query);
 router.post('/getInfoTac', getListController.getInfoTac);
+router.post('/getTacForInfo',getListController.getTacForInfo);
 
 router.post('/updates', getListController.updates);
 router.post('/add', getListController.add);

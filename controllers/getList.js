@@ -635,3 +635,15 @@ exports.getInfoTac = (req,res)=>{
  })
  .catch(err=>send(JSON.stringify(err)))
 };
+
+
+const getTacForInfo = async (tac)=>{
+  const tacInfo =  await tacModel.findOne({TAC:tac});
+  return getListModel.find({"厂商(中文)":tacInfo["品牌1"],"型号":tacInfo["型号1"]});
+};
+
+exports.getTacForInfo = (req, res) =>{
+  getTacForInfo(req.body.tac)
+  .then(result=>res.send(JSON.stringify(result)))
+  .catch(err=>res.send(JSON.stringify(err)))
+};
