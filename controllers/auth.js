@@ -19,21 +19,8 @@ exports.signIn = (req, res)=>{
   })
 };
 
-exports.register = (req, res)=>{
-  authModel.findOne({userName:req.body.userName},(err,doc)=>{
-    if(!err && doc ===null){
-      authModel.register(req.body,(_err,_doc)=>{
-        if(_err){
-          res.send(JSON.stringify('failure'))
-        }else{
-          res.send(JSON.stringify(_doc))
-        }
-      })
-    }else{
-      res.send(JSON.stringify('failure'))
-    }
-  });
-};
+
+
 
 exports.signOut = (req, res)=>{
   req.session.destroy();
@@ -57,4 +44,39 @@ exports.changePassword = (req, res) =>{
     console.log('密码修改结果',doc);
     res.send(JSON.stringify(doc))
   })
+};
+
+exports.addUser = (req, res)=>{
+  authModel.findOne({userName:req.body.userName},(err,doc)=>{
+    if(!err && doc ===null){
+      authModel.register(req.body,(_err,_doc)=>{
+        if(_err){
+          res.send(JSON.stringify('failure'))
+        }else{
+          res.send(JSON.stringify(_doc))
+        }
+      })
+    }else{
+      res.send(JSON.stringify('failure'))
+    }
+  });
+};
+
+exports.getUserList = (req, res)=>{
+  authModel.find()
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
+
+exports.removeUser = (req, res)=>{
+  authModel.findByIdAndRemove(req.body._id)
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
+
+exports.updateUser = (req, res) => {
+  const{_id,...doc} = req.body;
+  authModel.findByIdAndUpdate(_id,doc)
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)));
 };

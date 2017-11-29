@@ -501,7 +501,7 @@ const getDetail = async(url)=>{
         list3['重量(g)'] = detail[index + 1].replace(/g/,'');
         break;
       case '造型设计':
-        list3['外观'] =  ['翻盖','直板','滑盖','侧滑盖','旋转屏','全键盘','全触屏'].findIndex(item=> item === detail[index + 1])+1+''   ;
+        list3['外观'] =  detail[index + 1]  ;
         break;
       case '手机类型':
         list3['是否智能机'] = detail[index + 1].includes('智能') ? '1' : '0' ;
@@ -615,7 +615,7 @@ const add = async (url) =>{
 exports.add=(req, res)=>{
   add(req.body.add)
     .then(list => res.send(list))
-    .catch(msg => res.send(JSON.stringify(msg)))
+    .catch(msg => res.send(JSON.stringify(msg)));
 };
 
 const getInfoTac = async (id)=>{

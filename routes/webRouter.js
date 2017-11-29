@@ -6,36 +6,37 @@ const downloadController = require('../controllers/download');
 const tacController = require('../controllers/tac');
 const check = require('../check/check');
 
-
+//爬虫
 router.get('/getList', getListController.getList);
 router.get('/getPrice', getListController.getPrice);
-router.post('/query',check.query, getListController.query);
-router.post('/getInfoTac', getListController.getInfoTac);
-router.post('/getTacForInfo',getListController.getTacForInfo);
-
-router.post('/updates', getListController.updates);
 router.post('/add', getListController.add);
 
+//搜索
+router.post('/query',check.basie, getListController.query);
+router.post('/getInfoTac', check.basie, getListController.getInfoTac);
+router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
+router.post('/updates', check.update, getListController.updates);
+
+//登陆注册
 router.post('/signIn', authController.signIn);
-router.post('/register', check.check3, authController.register);
 router.get('/signOut', authController.signOut);
 router.get('/getSession', authController.getSession);
-router.post('/changePassword',authController.changePassword);
+router.post('/changePassword',check.basie,authController.changePassword);
 
-router.get('/download',downloadController.download);
+//用户管理
+router.post('/addUser', check.handleUser, authController.addUser);
+router.get('/getUserList', check.handleUser, authController.getUserList);
+router.post('/removeUser', check.handleUser, authController.removeUser);
+router.post('/updateUser', check.handleUser, authController.updateUser);
 
+
+//下载
+router.get('/download', check.download, downloadController.download);
+
+
+//测试
 router.post('/getTac',tacController.query);
 
 
-
-// router.get('/download',(req,res)=>{
-//   const file = './public/1.text';
-//   res.download(file);
-// });
-
-
-router.get('/test',check.check3,(req,res)=>{
-  res.send(JSON.stringify(req.session.level))
-});
 
 module.exports = router;
