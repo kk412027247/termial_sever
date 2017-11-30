@@ -39,14 +39,15 @@ exports.getSession = (req, res)=>{
 };
 
 exports.changePassword = (req, res) =>{
-  console.log('修改密码请求体',req.body);
+  //console.log('修改密码请求体',req.body);
   authModel.changePassword(req.body,(err,doc)=>{
-    console.log('密码修改结果',doc);
+    //console.log('密码修改结果',doc);
     res.send(JSON.stringify(doc))
   })
 };
 
 exports.addUser = (req, res)=>{
+  console.log(req.body);
   authModel.findOne({userName:req.body.userName},(err,doc)=>{
     if(!err && doc ===null){
       authModel.register(req.body,(_err,_doc)=>{
@@ -75,6 +76,7 @@ exports.removeUser = (req, res)=>{
 };
 
 exports.updateUser = (req, res) => {
+  console.log(req.body);
   const{_id,...doc} = req.body;
   authModel.findByIdAndUpdate(_id,doc)
     .then(result=>res.send(JSON.stringify(result)))
