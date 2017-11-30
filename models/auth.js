@@ -5,7 +5,7 @@ mongoose.Promise = global.Promise;
 const authSchema = new mongoose.Schema({
   'userName':String,
   'passWord':{type:String,default:'123'},
-  'level':{type:Number, default:1},
+  'level':{type:Number, default:1, enum:[1,2,3]},
 });
 
 authSchema.statics.signIn = function(info, callback){
