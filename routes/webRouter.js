@@ -32,6 +32,7 @@ router.post('/updateUser', check.handleUser, authController.updateUser);
 
 //下载
 router.get('/download', check.download, downloadController.download);
+router.get('/downloadTac', check.download, downloadController.downloadTac);
 
 
 //测试

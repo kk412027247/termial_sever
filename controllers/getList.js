@@ -647,7 +647,7 @@ const getInfoTac = async (id)=>{
   const tac = await tacModel.find({
     "品牌1":info["厂商(中文)"], "型号1":info["型号"]
   },{
-    "TAC":1,"_id":0
+    "TAC":1
   });
   return {...info._doc,tac};
 };

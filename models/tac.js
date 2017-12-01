@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient:true});
 mongoose.Promise = global.Promise;
+const mongooseToCsv = require('mongoose-to-csv');
 
 const tacSchema = new mongoose.Schema({
   "TAC" : Number,
@@ -35,10 +36,43 @@ const tacSchema = new mongoose.Schema({
   data:{type:Date, default:Date.now}
 });
 
+tacSchema.plugin(mongooseToCsv,{
+  headers: 'TAC 品牌1 型号1 可信度1 新可信度1 品牌2 型号2 可信度2 新可信度2 品牌3 型号3 可信度3 新可信度3 品牌4 型号4 可信度4 新可信度4 品牌5 型号5 可信度5 新可信度5 品牌6 型号6 可信度6 新可信度6 品牌7 型号7 可信度7 新可信度7',
+  constraints:{
+    'TAC':'TAC',
+    '品牌1': '品牌1',
+    '型号1': '型号1',
+    '可信度1': '可信度1',
+    '新可信度1': '新可信度1',
+    '品牌2': '品牌2',
+    '型号2': '型号2',
+    '可信度2': '可信度2',
+    '新可信度2': '新可信度2',
+    '品牌3': '品牌3',
+    '型号3': '型号3',
+    '可信度3': '可信度3',
+    '新可信度3': '新可信度3',
+    '品牌4': '品牌4',
+    '型号4': '型号4',
+    '可信度4': '可信度4',
+    '新可信度4': '新可信度4',
+    '品牌5': '品牌5',
+    '型号5': '型号5',
+    '可信度5': '可信度5',
+    '新可信度5': '新可信度5',
+    '品牌6': '品牌6',
+    '型号6': '型号6',
+    '可信度6': '可信度6',
+    '新可信度6': '新可信度6',
+    '品牌7': '品牌7',
+    '型号7': '型号7',
+    '可信度7': '可信度7',
+    '新可信度7': '新可信度7',
+  }
+});
 
 tacSchema.statics.query = function(query,callback){
-  this.find(query,{TAC:1,_id:0},callback)
+  this.find(query,{TAC:1},callback)
 };
-
 
 module.exports = mongoose.model('tac',tacSchema,'tac');
