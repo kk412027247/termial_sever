@@ -1,4 +1,5 @@
 const getListModel = require('../models/getList');
+const updateModel = require('../models/update');
 const tacModel = require('../models/tac');
 const charset = require ('superagent-charset');
 const superAgent = charset(require('superagent'));
@@ -327,12 +328,35 @@ exports.query = (req,res)=>{
 
 
 
-
+ //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
 exports.updates = (req, res) =>{
-  getListModel.updates(req.body.update,(err,doc)=>{
-    if(err) console.log(err);
-    res.send(doc)
-  })
+  (async ()=>{
+    const {tac,author, ...newValue} = req.body.update;
+    console.log('tac:',tac);
+    const currValue = await getListModel.findById(req.body.update._id);
+    const diff = [];
+    for (let key of Object.keys(newValue)){
+      if(JSON.stringify(newValue[key]) !== JSON.stringify(currValue[key]) && !!newValue[key] && !!currValue[key]){
+        diff.push(key);
+      }
+    }
+    const beforeUpdate = [];
+    for (let key of diff){
+      beforeUpdate.push({[key]:currValue[key]});
+    }
+    const afterUpdate = [];
+    for (let key of diff){
+      afterUpdate.push({[key]:newValue[key]})
+    }
+
+    if(!!diff.length){
+      const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
+      await res.send(JSON.stringify(result));
+      await updateModel.create({beforeUpdate,afterUpdate,author});
+    }else{
+      await res.send(JSON.stringify({}));
+    }
+  })();
 };
 
 

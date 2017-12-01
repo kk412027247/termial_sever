@@ -19,9 +19,6 @@ exports.signIn = (req, res)=>{
   })
 };
 
-
-
-
 exports.signOut = (req, res)=>{
   req.session.destroy();
   console.log(req.session);
@@ -64,7 +61,7 @@ exports.addUser = (req, res)=>{
 };
 
 exports.getUserList = (req, res)=>{
-  authModel.find()
+  authModel.find({level:{$lt:4}})
     .then(result=>res.send(JSON.stringify(result)))
     .catch(err=>res.send(JSON.stringify(err)));
 };
@@ -76,7 +73,7 @@ exports.removeUser = (req, res)=>{
 };
 
 exports.updateUser = (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   const{_id,...doc} = req.body;
   authModel.findByIdAndUpdate(_id,doc)
     .then(result=>res.send(JSON.stringify(result)))
