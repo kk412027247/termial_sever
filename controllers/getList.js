@@ -326,8 +326,6 @@ exports.query = (req,res)=>{
   });
 };
 
-
-
  //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
 exports.updates = (req, res) =>{
   (async ()=>{
@@ -335,28 +333,28 @@ exports.updates = (req, res) =>{
     console.log('更新有效:',!!tac);
     // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
     const currValue = (await getListModel.findById(req.body.update._id))._doc;
-    const diff = [];
+    const beforeUpdate = [];
+    const afterUpdate = [];
+    
     for (let key of Object.keys(newValue)){
       if(JSON.stringify(
         newValue[key]) !== JSON.stringify(currValue[key])
         && (!!newValue[key] || !!currValue[key])
       ){
-        diff.push(key);
+        beforeUpdate.push({[key]:currValue[key]});
+        afterUpdate.push({[key]:newValue[key]})
       }
     }
-    const beforeUpdate = [];
-    for (let key of diff){
-      beforeUpdate.push({[key]:currValue[key]});
-    }
-    const afterUpdate = [];
-    for (let key of diff){
-      afterUpdate.push({[key]:newValue[key]})
-    }
 
-    if(!!diff.length){
+    if(beforeUpdate.length !== 0 || afterUpdate.length !== 0){
       const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
       await res.send(JSON.stringify(result));
-      await updateModel.create({beforeUpdate,afterUpdate,author});
+      await updateModel.create({
+        brand:newValue['厂商(中文)']+' '+newValue['型号'],
+        beforeUpdate,
+        afterUpdate,
+        author
+      });
     }else{
       await res.send(JSON.stringify({}));
     }

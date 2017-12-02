@@ -1,11 +1,9 @@
 const fs =require('fs');
 const iconv = require('iconv-lite');
-
-
 const getListModel = require('../models/getList');
-const updateModel = require('../models/update');
+const tacModel = require('../models/tac');
 
-
+//一次只能下载一个文件？？？
 exports.download = (req, res) =>{
   if(!req.query._id){
     res.download('1');
@@ -17,27 +15,27 @@ exports.download = (req, res) =>{
     }
 
     const query = this.arr.map(item=>({_id:item}));
-    const fileName = Date.now();
-    const file = `./public/${fileName}.csv`;
+    const fileName1 = Date.now();
+    const file1 = `./public/${fileName1}.csv`;
 
     getListModel
       .find({$or:query})//.find({$or:req.body})
       .cursor()
       .pipe(getListModel.csvTransformStream())
-      .pipe(fs.createWriteStream(file));
+      .pipe(fs.createWriteStream(file1));
 
-    fs.watchFile(file,()=>{
-      fs.unwatchFile(file);
-      const buffer = fs.readFileSync(file);
+    fs.watchFile(file1,()=>{
+      fs.unwatchFile(file1);
+      const buffer = fs.readFileSync(file1);
       //这里生成了GBK格式的文件给excel打开；
-      fs.writeFileSync(file,iconv.encode(buffer,'GB18030'));
-      res.download(file,()=>{
-        fs.unlinkSync(file)
+      fs.writeFileSync(file1,iconv.encode(buffer,'GB18030'));
+      res.download(file1,()=>{
+        fs.unlinkSync(file1)
       });
 
     });
 
-    console.log(`${file}文件生成中`);
+    console.log(`${file1}文件生成中`);
   }
 };
 
@@ -52,25 +50,25 @@ exports.downloadTac = (req, res) =>{
     }
 
     const query = this.arr.map(item=>({_id:item}));
-    const fileName = Date.now();
-    const file = `./public/tac${fileName}.csv`;
+    const fileName2 = Date.now();
+    const file2 = `./public/tac${fileName2}.csv`;
 
-    updateModel
+    tacModel
       .find({$or:query})//.find({$or:req.body})
       .cursor()
-      .pipe(updateModel.csvTransformStream())
-      .pipe(fs.createWriteStream(file));
+      .pipe(tacModel.csvTransformStream())
+      .pipe(fs.createWriteStream(file2));
 
-    fs.watchFile(file,()=>{
-      fs.unwatchFile(file);
-      const buffer = fs.readFileSync(file);
+    fs.watchFile(file2,()=>{
+      fs.unwatchFile(file2);
+      const buffer = fs.readFileSync(file2);
       //这里生成了GBK格式的文件给excel打开；
-      fs.writeFileSync(file,iconv.encode(buffer,'GB18030'));
-      res.download(file,()=>{
-        fs.unlinkSync(file)
+      fs.writeFileSync(file2,iconv.encode(buffer,'GB18030'));
+      res.download(file2,()=>{
+        fs.unlinkSync(file2)
       });
     });
 
-    console.log(`${file}文件生成中`);
+    console.log(`${file2}文件生成中`);
   }
 };

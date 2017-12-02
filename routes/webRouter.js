@@ -16,6 +16,7 @@ router.post('/query',check.basie, getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/updates', check.update, getListController.updates);
+router.post('/getTacId',tacController.getTacId);
 
 //登陆注册
 router.post('/signIn', authController.signIn);
@@ -35,8 +36,7 @@ router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 
 
-//测试
-router.post('/getTac',tacController.query);
+
 
 
 

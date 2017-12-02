@@ -71,8 +71,8 @@ tacSchema.plugin(mongooseToCsv,{
   }
 });
 
-tacSchema.statics.query = function(query,callback){
-  this.find(query,{TAC:1},callback)
+tacSchema.statics.getTacId = function(query,callback){
+  this.find({$or:query},{_id:1},callback)
 };
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

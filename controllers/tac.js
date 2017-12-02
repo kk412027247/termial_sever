@@ -1,8 +1,8 @@
 const tacModel = require('../models/tac');
 
 
-exports.query = (req, res)=>{
- tacModel.query(req.body,(err,doc)=>{
+exports.getTacId = (req, res)=>{
+ tacModel.getTacId(req.body,(err,doc)=>{
    if(err) {
      console.log(err)
    }else{
@@ -10,3 +10,4 @@ exports.query = (req, res)=>{
    }
  })
 };
+
