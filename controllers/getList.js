@@ -332,11 +332,15 @@ exports.query = (req,res)=>{
 exports.updates = (req, res) =>{
   (async ()=>{
     const {tac,author, ...newValue} = req.body.update;
-    console.log('tac:',tac);
-    const currValue = await getListModel.findById(req.body.update._id);
+    console.log('更新有效:',!!tac);
+    // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
+    const currValue = (await getListModel.findById(req.body.update._id))._doc;
     const diff = [];
     for (let key of Object.keys(newValue)){
-      if(JSON.stringify(newValue[key]) !== JSON.stringify(currValue[key]) && !!newValue[key] && !!currValue[key]){
+      if(JSON.stringify(
+        newValue[key]) !== JSON.stringify(currValue[key])
+        && (!!newValue[key] || !!currValue[key])
+      ){
         diff.push(key);
       }
     }

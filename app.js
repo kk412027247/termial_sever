@@ -17,15 +17,11 @@ app.use(session({
     port:6379,
     host:'127.0.0.1',
   }),
-  //session会影响安全，设置有效期为一天
-  cookie:{ maxAge: 24*60*60*1000 },
+  //session会影响安全，设置有效期为9小时
+  cookie:{ maxAge: 9*60*60*1000 },
   resave:true,
   saveUninitialized:true
 }));
-
-
-
-
 
 
 //const index = require('./routes/index');
