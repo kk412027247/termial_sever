@@ -17,7 +17,7 @@ router.post('/query',check.basie, getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/updates', check.update, getListController.updates);
-router.post('/getTacId',tacController.getTacId);
+router.post('/getTacId',check.update,tacController.getTacId);
 
 //登陆注册
 router.post('/signIn', authController.signIn);
@@ -37,7 +37,7 @@ router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 
 
-//修改记录
+//查询修改记录
 router.post('/getUpdateHistory',updateController.getUpdateHistory);
 
 

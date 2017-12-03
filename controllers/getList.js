@@ -329,8 +329,8 @@ exports.query = (req,res)=>{
  //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
 exports.updates = (req, res) =>{
   (async ()=>{
-    const {tac, ...newValue} = req.body.update;
-    console.log('更新有效:',!!tac);
+    const {tac, date,...newValue} = req.body.update;
+    console.log('更新有效:',!!tac,date);
     // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
     const currValue = (await getListModel.findById(req.body.update._id))._doc;
     const beforeUpdate = [];
@@ -664,8 +664,21 @@ exports.getInfoTac = (req,res)=>{
 
 
 const getTacForInfo = async (tac)=>{
-  const tacInfo =  await tacModel.findOne({TAC:tac});
-  return getListModel.find({"厂商(中文)":tacInfo["品牌1"],"型号":tacInfo["型号1"]});
+  const tacInfo =  await tacModel.findOne({TAC:tac},{"品牌1":1,"型号1":1,_id:0});
+  return getListModel.find({
+    "厂商(中文)":tacInfo["品牌1"],
+    "型号":tacInfo["型号1"]
+  },{
+    "厂商(中文)":1,
+    "品牌(英文)":1,
+    "型号":1,
+    "上市时间(年月，格式：YYYYMM)":1,
+    "市场价格":1,
+    "操作系统":1,
+    "CPU数量":1,
+    "手机存储空间大小":1,
+    }
+  );
 };
 
 exports.getTacForInfo = (req, res) =>{
