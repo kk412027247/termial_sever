@@ -329,7 +329,7 @@ exports.query = (req,res)=>{
  //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
 exports.updates = (req, res) =>{
   (async ()=>{
-    const {tac,author, ...newValue} = req.body.update;
+    const {tac, ...newValue} = req.body.update;
     console.log('更新有效:',!!tac);
     // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
     const currValue = (await getListModel.findById(req.body.update._id))._doc;
@@ -353,7 +353,7 @@ exports.updates = (req, res) =>{
         brand:newValue['厂商(中文)']+' '+newValue['型号'],
         beforeUpdate,
         afterUpdate,
-        author
+        author:req.session.userInfo.userName,
       });
     }else{
       await res.send(JSON.stringify({}));

@@ -11,4 +11,11 @@ const updateSchema = new mongoose.Schema({
 });
 
 
+updateSchema.statics.getUpdateHistory = function(query,callback){
+  this.find({
+    author:query.author,
+    date:{$gte:new Date(query.startDate),$lt:new Date(query.endDate)}
+    }, callback).limit(20).skip(20*query.skip)
+};
+
 module.exports = mongoose.model('update',updateSchema);

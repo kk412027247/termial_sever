@@ -4,6 +4,7 @@ const getListController = require('../controllers/getList');
 const authController = require('../controllers/auth');
 const downloadController = require('../controllers/download');
 const tacController = require('../controllers/tac');
+const updateController = require('../controllers/update');
 const check = require('../check/check');
 
 //爬虫
@@ -36,6 +37,8 @@ router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 
 
+//修改记录
+router.post('/getUpdateHistory',updateController.getUpdateHistory);
 
 
 

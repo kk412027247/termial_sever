@@ -19,3 +19,9 @@ fs.writeFileSync(file,iconv.encode(buffer,'GB18030'));
 
 ### mongoose坑处
 mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
+
+### 查找时间范围方法
+
+```
+db.getCollection('updates').find({date:{$gte:ISODate("2017-12-02"),$lt:ISODate("2017-12-03")}})
+```

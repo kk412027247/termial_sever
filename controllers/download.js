@@ -19,7 +19,8 @@ exports.download = (req, res) =>{
     const file1 = `./public/${fileName1}.csv`;
 
     getListModel
-      .find({$or:query})//.find({$or:req.body})
+      .find({$or:query})
+      .sort({"厂商(中文)":1,"品牌(英文)":1,"型号":1})
       .cursor()
       .pipe(getListModel.csvTransformStream())
       .pipe(fs.createWriteStream(file1));
@@ -54,7 +55,8 @@ exports.downloadTac = (req, res) =>{
     const file2 = `./public/tac${fileName2}.csv`;
 
     tacModel
-      .find({$or:query})//.find({$or:req.body})
+      .find({$or:query})
+      .sort({'品牌1':1,'型号1':1})
       .cursor()
       .pipe(tacModel.csvTransformStream())
       .pipe(fs.createWriteStream(file2));
