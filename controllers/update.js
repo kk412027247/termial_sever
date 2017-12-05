@@ -16,3 +16,4 @@ exports.getUpdateHistory = (req, res)=>{
     await res.send({pages:Math.ceil(pages/20),doc})
   })()
 };
+
