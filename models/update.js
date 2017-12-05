@@ -7,7 +7,7 @@ const updateSchema = new mongoose.Schema({
   author:String,
   beforeUpdate:Array,
   afterUpdate:Array,
-  date:{type:Date, default:(Date.now()+8*60*60*1000)}
+  date:{type:Date, default:(Date.now())}
 });
 
 

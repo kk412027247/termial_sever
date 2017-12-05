@@ -66,6 +66,13 @@ exports.getUserList = (req, res)=>{
     .catch(err=>res.send(JSON.stringify(err)));
 };
 
+exports.getAllUserList = (req, res)=>{
+  authModel.find({},{userName:1,_id:0})
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
+
+
 exports.removeUser = (req, res)=>{
   authModel.findByIdAndRemove(req.body._id)
     .then(result=>res.send(JSON.stringify(result)))

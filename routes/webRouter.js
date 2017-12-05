@@ -28,6 +28,7 @@ router.post('/changePassword',check.basie,authController.changePassword);
 //用户管理
 router.post('/addUser', check.handleUser, authController.addUser);
 router.get('/getUserList', check.handleUser, authController.getUserList);
+router.get('/getAllUserList', check.handleUser, authController.getAllUserList);
 router.post('/removeUser', check.handleUser, authController.removeUser);
 router.post('/updateUser', check.handleUser, authController.updateUser);
 
