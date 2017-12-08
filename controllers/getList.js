@@ -474,7 +474,7 @@ const getDetail = async(url)=>{
   const list3 = {};
   const instance = await phantom.create(['--ignore-ssl-errors=yes','--load-images=no','--disk-cache=yes']);
   const page = await instance.createPage();
-  page.setting('resourceTimeout',5000);
+  page.setting('resourceTimeout',3000);
   // await page.on('onResourceRequested',requestData=>{
   //   console.info('Requesting', requestData.url)
   // });
@@ -581,7 +581,6 @@ const getDetail = async(url)=>{
         list3['通话时间(小时)'] = detail[index + 1];
         break;
       case 'SIM卡':
-        console.log(item,detail[index+1]);
         list3['卡槽数量'] = detail[index + 1].includes('双卡') ? '2' : '1';
         list3['是否支持双卡双待'] = detail[index + 1].includes('双卡') ? '1' : '0';
         //list3['SIM卡类型'] = detail[index + 1].replace(/[^\，]*\，/,'');

@@ -2,7 +2,7 @@ const authModel = require('../models/auth');
 
 
 exports.signIn = (req, res)=>{
-  console.log(req.body);
+  //console.log(req.body);
   authModel.signIn(req.body,(err, doc)=>{
     if(err){
       console.log('数据库出错');
@@ -44,7 +44,7 @@ exports.changePassword = (req, res) =>{
 };
 
 exports.addUser = (req, res)=>{
-  console.log(req.body);
+  //console.log(req.body);
   authModel.findOne({userName:req.body.userName},(err,doc)=>{
     if(!err && doc ===null){
       authModel.register(req.body,(_err,_doc)=>{

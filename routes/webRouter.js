@@ -5,7 +5,10 @@ const authController = require('../controllers/auth');
 const downloadController = require('../controllers/download');
 const tacController = require('../controllers/tac');
 const updateController = require('../controllers/update');
+const uploadController = require('../controllers/upload');
 const check = require('../check/check');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'});
 
 //爬虫
 router.get('/getList', getListController.getList);
@@ -37,9 +40,12 @@ router.post('/updateUser', check.handleUser, authController.updateUser);
 router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 
+//上传
+router.post('/uploadTac',upload.single('file'),uploadController.uploadTac);
 
 //查询修改记录
-router.post('/getUpdateHistory',updateController.getUpdateHistory);
+router.post('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
+
 
 
 
