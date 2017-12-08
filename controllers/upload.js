@@ -25,7 +25,6 @@ exports.uploadTac = (req, res)=>{
   const keys = Object.keys(worksheet);
   const headers = {};
   const data = [];
-  let checkErr = false;
   const errMessage = [];
 
 
@@ -39,10 +38,7 @@ exports.uploadTac = (req, res)=>{
 
     if(row === -1 ){
       //检测表头是否错误
-      if(!headerArr.includes(value)) {
-        checkErr = true;
-        errMessage.push("("+value+")")
-      }
+      if(!headerArr.includes(value)) errMessage.push("("+value+")");
       headers[col]=value;
       return;
     }
@@ -56,7 +52,7 @@ exports.uploadTac = (req, res)=>{
     });
 
   //检测表头字段是否正确
-  if(checkErr){
+  if(errMessage.length !== 0){
     res.send(JSON.stringify('the header of table is err, '+errMessage));
     console.log(errMessage);
     return;
