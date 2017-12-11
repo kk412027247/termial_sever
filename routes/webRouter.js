@@ -11,7 +11,7 @@ const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 
 //爬虫
-router.get('/getList', getListController.getList);
+router.post('/getList', uploadController.getList);
 router.get('/getPrice', getListController.getPrice);
 router.post('/add', getListController.add);
 
