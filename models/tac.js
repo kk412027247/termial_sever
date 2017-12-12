@@ -75,4 +75,8 @@ tacSchema.statics.getTacId = function(query,callback){
   this.find({$or:query},{_id:1},callback)
 };
 
+tacSchema.statics.saveUploadTac = function(doc,callback){
+  this.insert(doc,callback)
+};
+
 module.exports = mongoose.model('tac',tacSchema,'tac');

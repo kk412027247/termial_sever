@@ -6,13 +6,13 @@ const downloadController = require('../controllers/download');
 const tacController = require('../controllers/tac');
 const updateController = require('../controllers/update');
 const uploadController = require('../controllers/upload');
+const spiderController = require('../controllers/spider');
 const check = require('../check/check');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 
 //爬虫
-router.post('/getList', uploadController.getList);
-router.get('/getPrice', getListController.getPrice);
+router.post('/spider', spiderController.spider);
 router.post('/add', getListController.add);
 
 //搜索
@@ -42,9 +42,12 @@ router.get('/downloadTac', check.download, downloadController.downloadTac);
 
 //上传
 router.post('/uploadTac',upload.single('file'),uploadController.uploadTac);
+router.post('/saveUploadTac',tacController.saveUploadTac);
 
 //查询修改记录
 router.post('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
+
+
 
 
 

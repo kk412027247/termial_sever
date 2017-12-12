@@ -17,7 +17,7 @@ const getListSchema = new mongoose.Schema({
   '外观':String,
   '市场定位':String,
   '市场价格':String,
-  '上市时间':String,
+  '上市时间(年月，格式：YYYYMM)':String,
   '终端支持能力':String,
   '终端支持能力子项':String,
   '是否智能机':String,

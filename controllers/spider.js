@@ -1,59 +1,14 @@
 const getListModel = require('../models/getList');
-const updateModel = require('../models/update');
-const tacModel = require('../models/tac');
+const urlEncode = require('urlencode');
 const superAgent = require('superagent');
 require('superagent-charset')(superAgent);
-
-const cheerio =require('cheerio');
-const phantom = require('phantom');
-
-exports.query = (req,res)=>{
-  getListModel.query(req.body.query,(err, doc)=>{
-    if(err) console.log(err);
-    //console.log('查询结果',doc);
-    res.send(doc)
-  });
-};
-
- //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
-exports.updates = (req, res) =>{
-  (async ()=>{
-    const {tac, date,...newValue} = req.body.update;
-    console.log('更新有效:',!!tac,date);
-    // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
-    const currValue = (await getListModel.findById(req.body.update._id))._doc;
-    const beforeUpdate = [];
-    const afterUpdate = [];
-    
-    for (let key of Object.keys(newValue)){
-      if(JSON.stringify(
-        newValue[key]) !== JSON.stringify(currValue[key])
-        && (!!newValue[key] || !!currValue[key])
-      ){
-        beforeUpdate.push({[key]:currValue[key]});
-        afterUpdate.push({[key]:newValue[key]})
-      }
-    }
-
-    if(beforeUpdate.length !== 0 || afterUpdate.length !== 0){
-      const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
-      await res.send(JSON.stringify(result));
-      await updateModel.create({
-        brand:newValue['厂商(中文)']+' '+newValue['型号'],
-        beforeUpdate,
-        afterUpdate,
-        author:req.session.userInfo.userName,
-      });
-    }else{
-      await res.send(JSON.stringify({}));
-    }
-  })();
-};
-
+const cheerio = require('cheerio');
+const userAgent =  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36';
+const cookie = 'ip_ck=5sOD4vzxj7QuMTQyNTY2LjE1MDYwMDcwOTY%3D; listSubcateId=57; Adshow=2; visited_serachKw=vivo%20X20%7COPPO%20R11s%20Plus; lv=1512723492; vn=19; z_pro_city=s_provice%3Dguangdong%26s_city%3Dguangzhou; userProvinceId=30; userCityId=347; userCountyId=0; userLocationId=9; realLocationId=9; userFidLocationId=9; visited_subcateProId=57-1167243';
+const search = 'http://detail.zol.com.cn/index.php?c=SearchList&subcateId=57&keyword=';
 
 const list1 = {};
 
-list1['tac'] = '';
 list1['子型号'] = '';
 list1['市场定位'] = '';
 list1['终端支持能力'] = '';
@@ -146,53 +101,48 @@ list1['是否支持显示激活状态'] = '';
 list1['是否支持显示数据传输'] = '';
 list1['author'] = 'spider';
 
+
+const getKeyWordResult = async (keyword)=>{
+  //console.log(keyWord);
+  const res = await superAgent.get(search+urlEncode(keyword,'gbk')).set('User-Agent',userAgent).set('Cookie',cookie).charset();
+  const $ = cheerio.load(res.text);
+  //搜索结果第一条信息的地址
+  const device = $('div#wrapper div.main div.list-item').eq(0).find('h3').find('a').attr('href');
+  //console.log(device);
+  if(!device) {
+    console.log(`keyword ${keyword} no data match`);
+    return {errKeyword:keyword};
+  }else{
+    return 'http://detail.zol.com.cn'+ device;
+  }
+};
+
 const getUrl = async (url)=>{
   const list2 = {};
-  const res = await superAgent(url).charset();
-  const $ = await cheerio.load(res.text);
-  list2['全称'] = await $('h1.product-model__name').text();
-  list2['url'] = await 'http://detail.zol.com.cn' + $('div#_j_tag_nav ul li a').eq(2).attr('href');
-  list2['市场价格'] = await $('b.price-type').text();
-  list2['厂商(中文)'] = await $('.breadcrumb a').eq(2).text().replace(/手机/ig,'');
-  list2['品牌(英文)'] = await list2['全称'].replace(/（.*/, '').replace(new RegExp(list2['厂商(中文)']), '');
-  list2['型号'] = await list2['全称'].replace(/（.*/, '').replace(new RegExp(list2['厂商(中文)']), '');
+  const res = await superAgent(url).set('User-Agent',userAgent).set('Cookie',cookie).charset();
+  const $ = cheerio.load(res.text);
+  list2['全称'] =  $('h1.product-model__name').text().toUpperCase();
+  list2['url'] =  'http://detail.zol.com.cn' + $('div.section a._j_MP_more').attr('href');
+  list2['市场价格'] =  $('b.price-type').text();
+  list2['厂商(中文)'] =  $('.breadcrumb a').eq(2).text().replace(/手机/ig,'').toUpperCase();
+  list2['品牌(英文)'] =  list2['全称'].replace(/（.*/, '').replace(new RegExp(list2['厂商(中文)']), '').toUpperCase();
+  list2['型号'] =  list2['全称'].replace(/（.*/, '').replace(new RegExp(list2['厂商(中文)']), '').toUpperCase();
   return {...list2} ;
 };
 
-const getDetail = async(url)=>{
+const getDetail = async (url) =>{
   const list3 = {};
-  const instance = await phantom.create(['--ignore-ssl-errors=yes','--load-images=no','--disk-cache=yes']);
-  const page = await instance.createPage();
-  page.setting('resourceTimeout',3000);
-  // await page.on('onResourceRequested',requestData=>{
-  //   console.info('Requesting', requestData.url)
-  // });
-  const status = await page.open(url);
-  console.log(status);
-  const content = await page.property('content');
-  const $ = await cheerio.load(content);
-  const detail = await $('div#newTb table li span').map((index, element)=>{
+  const res = await superAgent(url).set('User-Agent',userAgent).set('Cookie',cookie).charset();
+  const $ =  cheerio.load(res.text);
+  const detail = $('div#newTb table li span').map((index, element)=>{
     if($(element).text() !== ''){return $(element).text()}
   }).toArray();
-  //console.log(detail);
-
-  await detail.forEach((item, index)=>{
+  detail.forEach((item, index)=>{
     switch(item){
       case '支持频段':
-        //list3['支持TD-LTE频段'] = detail[index + 1].includes('TD-LTE')? detail[index + 1].match(/TD-LTE\s([^\\]+)\n/)[1] :'';
         list3['支持TD-LTE频段'] = detail[index+1];
-        // let i =0;
-        // list3['网络制式'] = ['TD-SCDMA','GSM','CDMA','EDGE','WCDMA','CDMA2000','CDMA 1X',
-        //   'CDMA EVDO'].reduce((pre, cur)=>{
-        //   i++;
-        //   if(detail[index + 1].includes(cur)){
-        //     return pre.concat(i)
-        //   }else{
-        //     return pre
-        //   }},[]).toString();
         list3['网络制式'] = detail[index + 1];
         list3['频段'] = detail[index + 1];
-
         break ;
       case '4G网络':
         list3['是否支持FR'] = '1';
@@ -223,7 +173,7 @@ const getDetail = async(url)=>{
         list3['是否支持快速充电'] = detail[index + 1].includes('快充') ? '是' : '否';
         break;
       case '上市日期':
-        list3['上市时间'] = detail[index + 1].replace(/[年,月]/g, '').substring(0,6);
+        list3['上市时间(年月，格式：YYYYMM)'] = detail[index + 1].replace(/[年,月]/g, '').substring(0,6);
         break;
       case '核心数':
         list3['CPU数量'] = detail[index + 1];
@@ -252,13 +202,12 @@ const getDetail = async(url)=>{
         list3['主屏分辨率(纵)'] = detail[index + 1].match(/x([\d]+)/)[1];
         break;
       case '主屏材质':
-        list3['主屏材质'] = ['AMOLED','SLCD','TFT','ASV','IPS','其他','OGS'].findIndex(item=>detail[index + 1].includes(item))+1+'';
+        list3['主屏材质'] = detail[index + 1];
         break;
       case '机身接口':
         list3['充电器接口'] = detail[index + 1].replace(/^[^\，]+\，/, '');
-        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^\，]+)\，/)[1] : undefined;
+        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^\，]+)\，/)[1] : '';
         list3['USB接口版本'] = detail[index + 1].replace(/^[^\，]+\，/, '');
-
         break;
       case '电池容量':
         list3['电池容量'] = detail[index + 1];
@@ -288,8 +237,7 @@ const getDetail = async(url)=>{
         list3['照相功能'] = detail[index + 1];
         break;
       case '操作系统':
-        list3['操作系统'] = ['ophone','windows mobile','windows ce','Android','symbian','linux','palm',
-          'mkt','其他','iOS','Windows','blackberry','oms','meego'].findIndex(item=>detail[index + 1].includes(item))+1   ;
+        list3['操作系统'] = detail[index + 1] ;
         list3['操作系统版本'] = detail[index + 1];
         break;
       case 'RAM容量':
@@ -311,66 +259,34 @@ const getDetail = async(url)=>{
         break;
     }
   });
-  await instance.exit();
   return {...list3};
 };
 
-const add = async (url) =>{
-  const data1 = {...list1};
-  const data2 = await getUrl(url);
-  if(data2['全称'] === '') throw {status:'invalid'};
-  const check= await getListModel.findOne({'全称':data2['全称']});
-  if(check !== null ) throw {...check._doc,status:'exist'};
-  const data3 = await getDetail(data2.url);
-  await getListModel.create({...data1, ...data2, ...data3});
-  return getListModel.findOne({'全称':data2['全称']});
-};
 
-exports.add=(req, res)=>{
-  add(req.body.add)
-    .then(list => res.send(list))
-    .catch(msg => res.send(JSON.stringify(msg)));
-};
-
-const getInfoTac = async (id)=>{
-  const info =await getListModel.findOne(id);
-  const tac = await tacModel.find({
-    "品牌1":info["厂商(中文)"], "型号1":info["型号"]
-  },{
-    "TAC":1
-  });
-  return {...info._doc,tac};
-};
-
-exports.getInfoTac = (req,res)=>{
- getInfoTac(req.body)
- .then(infoTac=>{
-   res.send(JSON.stringify(infoTac))
- })
- .catch(err=>send(JSON.stringify(err)))
-};
-
-
-const getTacForInfo = async (tac)=>{
-  const tacInfo =  await tacModel.findOne({TAC:tac},{"品牌1":1,"型号1":1,_id:0});
-  return getListModel.find({
-    "厂商(中文)":tacInfo["品牌1"],
-    "型号":tacInfo["型号1"]
-  },{
-    "厂商(中文)":1,
-    "品牌(英文)":1,
-    "型号":1,
-    "上市时间(年月，格式：YYYYMM)":1,
-    "市场价格":1,
-    "操作系统":1,
-    "CPU数量":1,
-    "手机存储空间大小":1,
+exports.spider = (req, res)=>{
+  (async ()=>{
+    const result = {errKeyword:[],valid:[],exist:[]};
+    for(let keyWord of req.body.query){
+      const generalUrl = await getKeyWordResult(keyWord);
+      if(typeof generalUrl === 'string'){
+        const generalPage = await getUrl(generalUrl);
+        const check = await getListModel.findOne({
+          '厂商(中文)':{$regex:generalPage['厂商(中文)'], $options:"i"},
+          '型号':{$regex:generalPage['型号'], $options:"i"}
+        });
+        if(!check){
+          const detailInfo = await getDetail(generalPage.url);
+          result.valid.push({...list1,...generalPage,...detailInfo});
+          await getListModel.create({...list1,...generalPage,...detailInfo})
+        }else{
+          result.exist.push(check);
+        }
+      }else{
+        result.errKeyword.push(generalUrl.errKeyword)
+      }
     }
-  );
-};
-
-exports.getTacForInfo = (req, res) =>{
-  getTacForInfo(req.body.tac)
-  .then(result=>res.send(JSON.stringify(result)))
-  .catch(err=>res.send(JSON.stringify(err)))
+    return result;
+  })()
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)));
 };

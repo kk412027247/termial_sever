@@ -1,13 +1,12 @@
 const express = require('express');
 const app = express();
 const host = require('./host');
-
 const path = require('path');
 //const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-
+const webRouter = require ('./routes/webRouter');
 //session模块设置
 const session=require('express-session');
 const RedisStore=require('connect-redis')(session);
@@ -24,9 +23,8 @@ app.use(session({
 }));
 
 
-//const index = require('./routes/index');
-const users = require('./routes/users');
-const webRouter = require ('./routes/webRouter');
+
+
 
 
 
@@ -58,7 +56,7 @@ app.all('*', function(req, res, next) {
 
 
 app.use('/', webRouter);
-app.use('/users', users);
+
 
 
 // catch 404 and forward to error handler
