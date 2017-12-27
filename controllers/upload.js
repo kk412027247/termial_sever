@@ -45,7 +45,7 @@ exports.uploadTac = (req, res)=>{
       data[row]={}
     }
 
-    data[row][headers[col]] = value;
+    data[row][headers[col]] = value.replace(/(-*)|(_*)|(,*)|(，*)/,' ').replace(/(^\s*)|(\s*$)/g, '');
     
     });
 
@@ -58,13 +58,14 @@ exports.uploadTac = (req, res)=>{
 
   //异步转同步操作
   (async()=>{
-    const _data = {exist:[],valid:[]};
+    const _data = {dataExist:[],uploadExist:[],valid:[]};
     for(let tacInfo of data){
       const check = await tacModel.find({'TAC':tacInfo['TAC']});
       if(!!check){
-        _data.exist=[..._data.exist,tacInfo]
+        _data.dataExist=[..._data.dataExist, ...check];
+        _data.uploadExist=[..._data.uploadExist, tacInfo]
       }else{
-        _data.valid=[..._data.valid,tacInfo]
+        _data.valid = [..._data.valid, tacInfo]
       }
     }
     await res.send(JSON.stringify(_data))
