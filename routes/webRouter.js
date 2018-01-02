@@ -15,14 +15,27 @@ const upload = multer({dest: 'uploads/'});
 router.post('/spider', spiderController.spider);
 router.post('/add', getListController.add);
 
-//搜索
+//查询
 router.post('/query',check.basie, getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
-router.post('/updates', check.update, getListController.updates);
 router.post('/getTacId',check.update,tacController.getTacId);
 
-//登陆注册
+//上传文件
+router.post('/uploadTac',upload.single('file'),uploadController.uploadTac);
+
+//新增TAC数据
+router.post('/createTac',tacController.createTac);
+
+//修改
+router.post('/updates', check.update, getListController.updates);
+router.post('/updateTac', tacController.updateTac);
+
+//保存数据
+router.post('/saveUploadTac',tacController.saveUploadTac);
+
+
+//登陆
 router.post('/signIn', authController.signIn);
 router.get('/signOut', authController.signOut);
 router.get('/getSession', authController.getSession);
@@ -40,17 +53,9 @@ router.post('/updateUser', check.handleUser, authController.updateUser);
 router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 
-//上传
-router.post('/uploadTac',upload.single('file'),uploadController.uploadTac);
-router.post('/saveUploadTac',tacController.saveUploadTac);
 
 //查询修改记录
 router.post('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
-
-
-
-
-
 
 
 module.exports = router;

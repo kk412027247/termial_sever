@@ -79,4 +79,28 @@ tacSchema.statics.saveUploadTac = function(doc,callback){
   this.insert(doc,callback)
 };
 
+tacSchema.statics.updateTac = async function(docs){
+  const histories = [];
+
+
+  for (let doc of docs){
+    let history ={before:[], after:[]};
+    const {_id,..._after} = doc;
+    const _before = await this.findByIdAndUpdate({_id},_after);
+    const keys= Object.keys(_after);
+    for(let key of keys){
+      if(_before[key] !== _after[key]){
+        history.before.push({[key]: _before[key]});
+        history.after.push({[key]:_after[key]});
+      }
+    }
+    if(history.after.length !== 0) histories.push(history);
+  }
+  return histories;
+};
+
+tacSchema.statics.createTac = async function(docs){
+  return this.create(docs)
+};
+
 module.exports = mongoose.model('tac',tacSchema,'tac');

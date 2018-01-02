@@ -1,5 +1,5 @@
 const tacModel = require('../models/tac');
-
+const authModel = require('../models/auth');
 
 exports.getTacId = (req, res)=>{
  tacModel.getTacId(req.body,(err,doc)=>{
@@ -23,3 +23,19 @@ exports.saveUploadTac = (req, res)=>{
   res.send(JSON.stringify('存储中'))
 };
 
+exports.updateTac = (req, res) => {
+  (async ()=>{
+    const histories = await tacModel.updateTac(req.body.docs);
+    if(histories.length === 0) throw('nothing change');
+    return authModel.updateHistory(req.session.userInfo.userName, histories);
+  })().then((result)=>res.send(result))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
+
+exports.createTac = (req, res)=>{
+  (async ()=>{
+    await tacModel.createTac(req.body.docs);
+    return authModel.updateHistory(eq.session.userInfo.userName,{before:'',after:docs})
+  })().then(success=>res.send(success))
+    .catch(err=>res.send(err));
+};
