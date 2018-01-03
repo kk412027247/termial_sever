@@ -25,7 +25,7 @@ authSchema.statics.changePassword = function(info,callback){
 authSchema.statics.updateHistory= async function(userName, histories){
   return this.update(
     {userName},
-    {$push: {history: histories}},
+    {$push: {'history': histories}},
   );
 };
 

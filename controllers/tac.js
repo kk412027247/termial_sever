@@ -24,6 +24,7 @@ exports.saveUploadTac = (req, res)=>{
 };
 
 exports.updateTac = (req, res) => {
+
   (async ()=>{
     const histories = await tacModel.updateTac(req.body.docs);
     if(histories.length === 0) throw('nothing change');
@@ -35,7 +36,7 @@ exports.updateTac = (req, res) => {
 exports.createTac = (req, res)=>{
   (async ()=>{
     await tacModel.createTac(req.body.docs);
-    return authModel.updateHistory(eq.session.userInfo.userName,{before:'',after:docs})
+    return authModel.updateHistory(req.session.userInfo.userName,{before:'',after:docs})
   })().then(success=>res.send(success))
     .catch(err=>res.send(err));
 };

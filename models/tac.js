@@ -79,13 +79,15 @@ tacSchema.statics.saveUploadTac = function(doc,callback){
   this.insert(doc,callback)
 };
 
+const doNoting = (...arg) => arg;
+
 tacSchema.statics.updateTac = async function(docs){
   const histories = [];
-
-
   for (let doc of docs){
     let history ={before:[], after:[]};
-    const {_id,..._after} = doc;
+    const {_id, invalid, data,..._after} = doc;
+    doNoting(invalid,data);
+
     const _before = await this.findByIdAndUpdate({_id},_after);
     const keys= Object.keys(_after);
     for(let key of keys){

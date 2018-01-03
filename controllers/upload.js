@@ -58,15 +58,15 @@ exports.uploadTac = (req, res)=>{
 
   //异步转同步操作
   (async()=>{
+    let i = 0;
     const _data = {dataExist:[],uploadExist:[],valid:[]};
     for(let tacInfo of data){
-      const check = await tacModel.find({'TAC':tacInfo['TAC']});
+      const check = await tacModel.findOne({'TAC':tacInfo['TAC']});
       if(!!check){
-        _data.dataExist=[..._data.dataExist, ...check];
-        _data.uploadExist=[..._data.dataExist, ...check];
-
+        _data.dataExist=[..._data.dataExist, {invalid: false, ...check._doc}];
+        _data.uploadExist=[..._data.uploadExist, {_id: check._id, invalid: false, ...tacInfo}];
       }else{
-        _data.valid = [..._data.valid, tacInfo]
+        _data.valid = [..._data.valid, {_id: ++i, invalid: false, ...tacInfo}]
       }
     }
     await res.send(JSON.stringify(_data))

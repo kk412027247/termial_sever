@@ -25,3 +25,5 @@ mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑
 ```
 db.getCollection('updates').find({date:{$gte:ISODate("2017-12-02"),$lt:ISODate("2017-12-03")}})
 ```
+
+### cookies会根据请求地址不同，而不同？？

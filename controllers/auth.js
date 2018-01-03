@@ -12,9 +12,9 @@ exports.signIn = (req, res)=>{
       res.send(JSON.stringify(0))
     }else{
       //登陆成功之后，在session对象定义一个level的数值
-      console.log('登陆成功');
       req.session.userInfo = {userName:doc.userName, level:doc.level};
-      res.send(JSON.stringify({userName:doc.userName, level:doc.level}))
+      res.send(JSON.stringify({userName:doc.userName, level:doc.level}));
+      console.log(req.session);
     }
   })
 };
