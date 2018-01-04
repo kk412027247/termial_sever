@@ -7,13 +7,33 @@ require('superagent-charset')(superAgent);
 const cheerio =require('cheerio');
 const phantom = require('phantom');
 
+//合并型号查询，TAC查询到一个窗口
 exports.query = (req,res)=>{
-  getListModel.query(req.body.query,(err, doc)=>{
+  (async ()=>{
+    if(!!Number(req.body.query.replace(/"/g,''))){
+      const deviceInfo = await getTacForInfo(req.body.query.replace(/"/g,''));
+      if(!!deviceInfo){
+        res.send(deviceInfo)
+      }else{
+        res.send([])
+      }
+    }else{
+      const deviceInfo = await getListModel.query(req.body.query);
+      res.send(deviceInfo);
+    }
+  })()
+};
+
+
+//旧版回调函数路由， 备用录用，防止神马乱七八糟BUG
+exports._query = (req,res)=>{
+  getListModel._query(req.body.query,(err, doc)=>{
     if(err) console.log(err);
     //console.log('查询结果',doc);
     res.send(doc)
   });
 };
+
 
  //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
 exports.updates = (req, res) =>{
@@ -353,20 +373,22 @@ exports.getInfoTac = (req,res)=>{
 
 const getTacForInfo = async (tac)=>{
   const tacInfo =  await tacModel.findOne({TAC:tac},{"品牌1":1,"型号1":1,_id:0});
-  return getListModel.find({
-    "厂商(中文)":tacInfo["品牌1"],
-    "型号":tacInfo["型号1"]
-  },{
-    "厂商(中文)":1,
-    "品牌(英文)":1,
-    "型号":1,
-    "上市时间(年月，格式：YYYYMM)":1,
-    "市场价格":1,
-    "操作系统":1,
-    "CPU数量":1,
-    "手机存储空间大小":1,
-    }
-  );
+  if (tacInfo){
+    return getListModel.find({
+        "厂商(中文)":tacInfo["品牌1"],
+        "型号":tacInfo["型号1"]
+      },{
+        "厂商(中文)":1,
+        "品牌(英文)":1,
+        "型号":1,
+        "上市时间(年月，格式：YYYYMM)":1,
+        "市场价格":1,
+        "操作系统":1,
+        "CPU数量":1,
+        "手机存储空间大小":1,
+      }
+    );
+  }
 };
 
 exports.getTacForInfo = (req, res) =>{
