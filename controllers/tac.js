@@ -1,5 +1,6 @@
 const tacModel = require('../models/tac');
 const authModel = require('../models/auth');
+const spiderController = require('./spider.js');
 
 exports.getTacId = (req, res)=>{
  tacModel.getTacId(req.body,(err,doc)=>{
@@ -24,7 +25,6 @@ exports.saveUploadTac = (req, res)=>{
 };
 
 exports.updateTac = (req, res) => {
-
   (async ()=>{
     const histories = await tacModel.updateTac(req.body.docs);
     if(histories.length === 0) throw('nothing change');
@@ -35,8 +35,18 @@ exports.updateTac = (req, res) => {
 
 exports.createTac = (req, res)=>{
   (async ()=>{
-    await tacModel.createTac(req.body.docs);
-    return authModel.updateHistory(req.session.userInfo.userName,{before:'',after:docs})
+    console.log(req.body.docs);
+    const save = await tacModel.createTac(req.body.docs);
+    console.log(save);
+    //手机品牌和型号提取出来，
+    const queries = [];
+    for(let query of req.body.docs){
+      queries.push(query['品牌1']+query['型号1'])
+    }
+    //提交到爬虫里
+    const result = await spiderController.handleSpider(queries);
+    console.log(result);
+    return authModel.updateHistory(req.session.userInfo.userName, {before:'' ,after:docs})
   })().then(success=>res.send(success))
     .catch(err=>res.send(err));
 };

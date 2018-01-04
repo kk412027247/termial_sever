@@ -103,14 +103,14 @@ list1['author'] = 'spider';
 
 
 const getKeyWordResult = async (keyword)=>{
-  //console.log(keyWord);
+  
   const res = await superAgent.get(search+urlEncode(keyword,'gbk')).set('User-Agent',userAgent).set('Cookie',cookie).charset();
   const $ = cheerio.load(res.text);
   //搜索结果第一条信息的地址
   const device = $('div#wrapper div.main div.list-item').eq(0).find('h3').find('a').attr('href');
   //console.log(device);
   if(!device) {
-    console.log(`keyword ${keyword} no data match`);
+    //console.log(`keyword ${keyword} no data match`);
     return {errKeyword:keyword};
   }else{
     return 'http://detail.zol.com.cn'+ device;
@@ -205,9 +205,9 @@ const getDetail = async (url) =>{
         list3['主屏材质'] = detail[index + 1];
         break;
       case '机身接口':
-        list3['充电器接口'] = detail[index + 1].replace(/^[^\，]+\，/, '');
-        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^\，]+)\，/)[1] : '';
-        list3['USB接口版本'] = detail[index + 1].replace(/^[^\，]+\，/, '');
+        list3['充电器接口'] = detail[index + 1].replace(/^[^，]+，/, '');
+        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^，]+)，/)[1] : '';
+        list3['USB接口版本'] = detail[index + 1].replace(/^[^，]+，/, '');
         break;
       case '电池容量':
         list3['电池容量'] = detail[index + 1];
@@ -267,6 +267,7 @@ exports.spider = (req, res)=>{
   (async ()=>{
     const result = {errKeyword:[],valid:[],exist:[]};
     for(let keyWord of req.body.query){
+      console.log(keyWord);
       const generalUrl = await getKeyWordResult(keyWord);
       if(typeof generalUrl === 'string'){
         const generalPage = await getUrl(generalUrl);
@@ -289,4 +290,30 @@ exports.spider = (req, res)=>{
   })()
     .then(result=>res.send(JSON.stringify(result)))
     .catch(err=>res.send(JSON.stringify(err)));
+};
+
+exports.handleSpider = async (queries) => {
+  //console.log(queries);
+  const result = {errKeyword:[],valid:[],exist:[]};
+  for(let keyWord of queries){
+    console.log(keyWord);
+    const generalUrl = await getKeyWordResult(keyWord);
+    if(typeof generalUrl === 'string'){
+      const generalPage = await getUrl(generalUrl);
+      const check = await getListModel.findOne({
+        '厂商(中文)':{$regex:generalPage['厂商(中文)'], $options:"i"},
+        '型号':{$regex:generalPage['型号'], $options:"i"}
+      });
+      if(!check){
+        const detailInfo = await getDetail(generalPage.url);
+        result.valid.push({...list1,...generalPage,...detailInfo});
+        await getListModel.create({...list1,...generalPage,...detailInfo})
+      }else{
+        result.exist.push(check);
+      }
+    }else{
+      result.errKeyword.push(generalUrl.errKeyword)
+    }
+  }
+  return result;
 };

@@ -33,7 +33,7 @@ exports.uploadTac = (req, res)=>{
     const col = key.match(/([\D]+)/)[1];
     //如果因为列数从2开始，所以列数要-2，所以第一行为-1。
     const row = parseInt(key.match(/([\d]+)/)[1])-2;
-    const value = worksheet[key].v.toString().replace(/(_)|(-)/g,' ').replace(/(^\s*)|(\s*$)/g, '');
+    const value = worksheet[key].v.toString().replace(/(_)|(-)/g,' ').replace(/(^\s*)|(\s*$)/g, '').toUpperCase();
     //第一行为-1
     if(row === -1 ){
       //检测表头是否错误,如果存在就存起来
