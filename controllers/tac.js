@@ -35,17 +35,14 @@ exports.updateTac = (req, res) => {
 
 exports.createTac = (req, res)=>{
   (async ()=>{
-    console.log(req.body.docs);
-    const save = await tacModel.createTac(req.body.docs);
-    console.log(save);
+    await tacModel.createTac(req.body.docs);
     //手机品牌和型号提取出来，
     const queries = [];
     for(let query of req.body.docs){
       queries.push(query['品牌1']+query['型号1'])
     }
-    //提交到爬虫里
-    const result = await spiderController.handleSpider(queries);
-    console.log(result);
+    //把关键词抽成数组，提交到爬虫里
+    await spiderController.handleSpider(queries);
     return authModel.updateHistory(req.session.userInfo.userName, {before:'' ,after:docs})
   })().then(success=>res.send(success))
     .catch(err=>res.send(err));

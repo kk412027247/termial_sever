@@ -52,10 +52,11 @@ router.post('/updateUser', check.handleUser, authController.updateUser);
 //下载
 router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
+router.get('/downloadTemplate',downloadController.downloadTemplate);
 
 
 //查询修改记录
-router.post('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
+router.get('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
 
 
 module.exports = router;

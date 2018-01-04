@@ -74,3 +74,7 @@ exports.downloadTac = (req, res) =>{
     console.log(`${file2}文件生成中`);
   }
 };
+
+exports.downloadTemplate = (req,res)=>{
+  res.download('./public/template/template.xlsx')
+};
