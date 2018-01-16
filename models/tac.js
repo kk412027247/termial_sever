@@ -33,7 +33,9 @@ const tacSchema = new mongoose.Schema({
   "型号7" : String,
   "可信度7" : Number,
   "新可信度7" : Number,
-  data:{type:Date, default:Date.now}
+  data:{type:Date, default:Date.now} ,
+  image:Buffer,
+  auth:String,
 });
 
 tacSchema.plugin(mongooseToCsv,{
@@ -104,5 +106,7 @@ tacSchema.statics.updateTac = async function(docs){
 tacSchema.statics.createTac = async function(docs){
   return this.create(docs)
 };
+
+
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

@@ -1,5 +1,23 @@
 //登陆验证中间件
 
+exports.query = (req, res, next)=>{
+  if(!!req.session.userInfo && req.session.userInfo.level === 4){
+    console.log(req.session.userInfo);
+    next()
+  }else{
+    res.send(JSON.stringify(['queryNeedSession']))
+  }
+};
+
+exports.create = (req, res, next)=>{
+  if(!!req.session.userInfo && req.session.userInfo.level === 4){
+    console.log(req.session.userInfo);
+    next()
+  }else{
+    res.send(JSON.stringify(['createNeedSession']))
+  }
+};
+
 exports.handleUser = (req,res,next)=>{
   if(!!req.session.userInfo && req.session.userInfo.level === 4){
     console.log(req.session.userInfo.level);

@@ -1,6 +1,24 @@
 const tacModel = require('../models/tac');
 const authModel = require('../models/auth');
 const spiderController = require('./spider.js');
+const fs = require('fs');
+const fsAsync = (path)=>(
+  new Promise((resolve,reject)=>{
+    fs.readFile(path,(err,data)=>{
+      if(err){reject (err)}else{resolve (data)}
+    })
+  })
+);
+
+const createImage = (buffer,file) => {
+  new Promise((resolve,reject)=>{
+    fs.writeFile('./uploads/'+Date.now()+file.originalname.match(/\.[^.]+$/),buffer,err=>{
+      if(err){ reject(err)}else{ resolve(fs.unlink(file.path,err=>err))}
+    })
+  })
+};
+
+
 
 exports.getTacId = (req, res)=>{
  tacModel.getTacId(req.body,(err,doc)=>{
@@ -46,4 +64,16 @@ exports.createTac = (req, res)=>{
     return authModel.updateHistory(req.session.userInfo.userName, {before:'' ,after:docs})
   })().then(success=>res.send(success))
     .catch(err=>res.send(err));
+};
+
+
+
+exports.createTacWithImage = (req, res) =>{
+  (async ()=>{
+    const imageBuffer = await fsAsync(req.file.path);
+    await tacModel.create({...req.body, image:imageBuffer});
+    const image = (await tacModel.findOne({'TAC':333232323232323})).image;
+    await createImage(image,req.file);
+    res.send(JSON.stringify('上传成功了'))
+  })()
 };

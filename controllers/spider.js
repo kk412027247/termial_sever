@@ -103,7 +103,6 @@ list1['author'] = 'spider';
 
 
 const getKeyWordResult = async (keyword)=>{
-  
   const res = await superAgent.get(search+urlEncode(keyword,'gbk')).set('User-Agent',userAgent).set('Cookie',cookie).charset();
   const $ = cheerio.load(res.text);
   //搜索结果第一条信息的地址
@@ -267,8 +266,9 @@ exports.spider = (req, res)=>{
   (async ()=>{
     const result = {errKeyword:[],valid:[],exist:[]};
     for(let keyWord of req.body.query){
-      console.log(keyWord);
+      //console.log(keyWord);
       const generalUrl = await getKeyWordResult(keyWord);
+      //console.log(generalUrl);
       if(typeof generalUrl === 'string'){
         const generalPage = await getUrl(generalUrl);
         const check = await getListModel.findOne({
@@ -296,8 +296,9 @@ exports.handleSpider = async (queries) => {
   //console.log(queries);
   const result = {errKeyword:[],valid:[],exist:[]};
   for(let keyWord of queries){
-    console.log(keyWord);
+    //console.log(keyWord);
     const generalUrl = await getKeyWordResult(keyWord);
+    //console.log(generalUrl);
     if(typeof generalUrl === 'string'){
       const generalPage = await getUrl(generalUrl);
       const check = await getListModel.findOne({

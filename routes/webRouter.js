@@ -8,7 +8,10 @@ const updateController = require('../controllers/update');
 const uploadController = require('../controllers/upload');
 const spiderController = require('../controllers/spider');
 const check = require('../check/check');
+
+//这里不知道原因，反正上传就用这两个
 const multer = require('multer');
+// 总之就存进了uploads这个文件夹
 const upload = multer({dest: 'uploads/'});
 
 //爬虫
@@ -16,23 +19,26 @@ router.post('/spider', spiderController.spider);
 router.post('/add', getListController.add);
 
 //查询
-router.post('/query',check.basie, getListController.query);
+router.post('/query',check.query ,getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/getTacId',check.update,tacController.getTacId);
 
 //上传文件
-router.post('/uploadTac',upload.single('file'),uploadController.uploadTac);
+router.post('/uploadTac',check.basie,upload.single('file'),uploadController.uploadTac);
+router.post('/createTacWithImage',upload.single('tacWithImage'), tacController.createTacWithImage);
 
 //新增TAC数据
-router.post('/createTac',tacController.createTac);
+router.post('/createTac',check.create, tacController.createTac);
+
+
 
 //修改
 router.post('/updates', check.update, getListController.updates);
-router.post('/updateTac', tacController.updateTac);
+router.post('/updateTac', check.basie, tacController.updateTac);
 
 //保存数据
-router.post('/saveUploadTac',tacController.saveUploadTac);
+router.post('/saveUploadTac', check.basie, tacController.saveUploadTac);
 
 
 //登陆
