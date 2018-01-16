@@ -1,3 +1,4 @@
+const fs = require('fs');
 const mongoose = require('mongoose');
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient:true});
 mongoose.Promise = global.Promise;
@@ -107,6 +108,30 @@ tacSchema.statics.createTac = async function(docs){
   return this.create(docs)
 };
 
+
+const fsAsync = (path)=>(
+  new Promise((resolve,reject)=>{
+    fs.readFile(path,(err,data)=>{
+      if(err){
+        reject (err)
+      }else{
+        fs.unlink(path,err=>{if(err)console.log(err)});
+        resolve (data);
+      }
+    })
+  })
+);
+
+tacSchema.statics.createTacWithImage = async function(req){
+  const check = await this.findOne({TAC: req.body.TAC});
+  if(!!check){return 'TACExist'}
+  if(req.file){
+    const imageBuffer = await fsAsync(req.file.path);
+    return this.create({...req.body, image:imageBuffer});
+  }else{
+    return this.create(req.body);
+  }
+};
 
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

@@ -9,9 +9,8 @@ const uploadController = require('../controllers/upload');
 const spiderController = require('../controllers/spider');
 const check = require('../check/check');
 
-//这里不知道原因，反正上传就用这两个
+//这个中间件，大概是用来做上传文件储存的
 const multer = require('multer');
-// 总之就存进了uploads这个文件夹
 const upload = multer({dest: 'uploads/'});
 
 //爬虫

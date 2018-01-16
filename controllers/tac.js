@@ -2,13 +2,7 @@ const tacModel = require('../models/tac');
 const authModel = require('../models/auth');
 const spiderController = require('./spider.js');
 const fs = require('fs');
-const fsAsync = (path)=>(
-  new Promise((resolve,reject)=>{
-    fs.readFile(path,(err,data)=>{
-      if(err){reject (err)}else{resolve (data)}
-    })
-  })
-);
+
 
 const createImage = (buffer,file) => {
   new Promise((resolve,reject)=>{
@@ -68,12 +62,16 @@ exports.createTac = (req, res)=>{
 
 
 
+
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
-    const imageBuffer = await fsAsync(req.file.path);
-    await tacModel.create({...req.body, image:imageBuffer});
-    const image = (await tacModel.findOne({'TAC':333232323232323})).image;
-    await createImage(image,req.file);
-    res.send(JSON.stringify('上传成功了'))
+    const result = await tacModel.createTacWithImage(req);
+    if(result === 'TACExist'){
+      throw  result
+    }else{
+      return spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);
+    }
   })()
+    .then(success=>res.send(JSON.stringify(success)))
+    .catch(err=>res.send(JSON.stringify(err)))
 };
