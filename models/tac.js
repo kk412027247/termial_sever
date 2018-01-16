@@ -37,6 +37,7 @@ const tacSchema = new mongoose.Schema({
   data:{type:Date, default:Date.now} ,
   image:Buffer,
   auth:String,
+  imageName:String,
 });
 
 tacSchema.plugin(mongooseToCsv,{
@@ -126,8 +127,13 @@ tacSchema.statics.createTacWithImage = async function(req){
   const check = await this.findOne({TAC: req.body.TAC});
   if(!!check){return 'TACExist'}
   if(req.file){
-    const imageBuffer = await fsAsync(req.file.path);
-    return this.create({...req.body, image:imageBuffer});
+    if(req.file.size < 16*1024*1024){
+      const imageBuffer = await fsAsync(req.file.path);
+      return this.create({...req.body,imageName:Date.now()+'.'+req.file.mimetype.match(/[^/]+$/), image:imageBuffer});
+    }else{
+      return 'imageIsToLarge'
+    }
+
   }else{
     return this.create(req.body);
   }
