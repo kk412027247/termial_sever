@@ -129,13 +129,23 @@ tacSchema.statics.createTacWithImage = async function(req){
   if(req.file){
     if(req.file.size < 16*1024*1024){
       const imageBuffer = await fsAsync(req.file.path);
-      return this.create({...req.body,imageName:Date.now()+'.'+req.file.mimetype.match(/[^/]+$/), image:imageBuffer});
+      return this.create({
+        '品牌1':req.body.brand,
+        '型号1':req.body.model,
+        'TAC':req.body.TAC,
+        imageName:Date.now()+'.'+req.file.mimetype.match(/[^/]+$/),
+        image:imageBuffer
+      });
     }else{
       return 'imageIsToLarge'
     }
-
   }else{
-    return this.create(req.body);
+    return this.create({
+      '品牌1':req.body.brand,
+      '型号1':req.body.model,
+      'TAC':req.body.TAC,
+      image:req.body.image
+    });
   }
 };
 

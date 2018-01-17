@@ -1,16 +1,16 @@
 const tacModel = require('../models/tac');
 const authModel = require('../models/auth');
 const spiderController = require('./spider.js');
-const fs = require('fs');
+// const fs = require('fs');
 
 
-const createImage = (buffer,file) => {
-  new Promise((resolve,reject)=>{
-    fs.writeFile('./uploads/'+Date.now()+file.originalname.match(/\.[^.]+$/),buffer,err=>{
-      if(err){ reject(err)}else{ resolve(fs.unlink(file.path,err=>err))}
-    })
-  })
-};
+// const createImage = (buffer,file) => {
+//   new Promise((resolve,reject)=>{
+//     fs.writeFile('./uploads/'+Date.now()+file.originalname.match(/\.[^.]+$/),buffer,err=>{
+//       if(err){ reject(err)}else{ resolve(fs.unlink(file.path,err=>err))}
+//     })
+//   })
+// };
 
 
 
@@ -66,7 +66,7 @@ exports.createTac = (req, res)=>{
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
     const result = await tacModel.createTacWithImage(req);
-    if(result === 'TACExist'){
+    if(result === 'TACExist' || result === 'imageIsToLarge'){
       throw  result
     }else{
       return spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);

@@ -25,7 +25,7 @@ router.post('/getTacId',check.update,tacController.getTacId);
 
 //上传文件
 router.post('/uploadTac',check.basie,upload.single('file'),uploadController.uploadTac);
-router.post('/createTacWithImage',upload.single('tacWithImage'), tacController.createTacWithImage);
+router.post('/createTacWithImage',upload.single('image'), tacController.createTacWithImage);
 
 //新增TAC数据
 router.post('/createTac',check.create, tacController.createTac);

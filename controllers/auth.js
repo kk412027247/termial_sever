@@ -4,10 +4,10 @@ const authModel = require('../models/auth');
 exports.signIn = (req, res)=>{
   authModel.signIn(req.body,(err, doc)=>{
     if(err){
-      console.log('数据库出错');
+      //console.log('数据库出错');
       res.send(JSON.stringify('数据库出错'))
     }else if(doc === null){
-      console.log('密码／用户名错误');
+      //console.log('密码／用户名错误');
       res.send(JSON.stringify(0))
     }else{
       //登陆成功之后，在session对象定义一个level的数值
@@ -20,16 +20,16 @@ exports.signIn = (req, res)=>{
 
 exports.signOut = (req, res)=>{
   req.session.destroy();
-  console.log(req.session);
+  //console.log(req.session);
   res.send(JSON.stringify('signOut'))
 };
 
 exports.getSession = (req, res)=>{
   if(req.session.userInfo) {
-    console.log('getSession success');
+    //console.log('getSession success');
     res.send(JSON.stringify(req.session.userInfo))
   }else{
-    console.log('getSession failure');
+    //console.log('getSession failure');
     res.send(JSON.stringify({}))
   }
 };
