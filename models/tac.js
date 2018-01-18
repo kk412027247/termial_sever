@@ -37,7 +37,7 @@ const tacSchema = new mongoose.Schema({
   data:{type:Date, default:Date.now} ,
   image:Buffer,
   auth:String,
-  imageName:String,
+  imageName:{type:String, default :(Date.now()+'\.jpeg')},
 });
 
 tacSchema.plugin(mongooseToCsv,{
@@ -133,7 +133,7 @@ tacSchema.statics.createTacWithImage = async function(req){
         '品牌1':req.body.brand,
         '型号1':req.body.model,
         'TAC':req.body.TAC,
-        imageName:Date.now()+'.'+req.file.mimetype.match(/[^/]+$/),
+        //imageName:Date.now()+'.'+req.file.mimetype.match(/[^/]+$/),
         image:imageBuffer
       });
     }else{
@@ -144,7 +144,7 @@ tacSchema.statics.createTacWithImage = async function(req){
       '品牌1':req.body.brand,
       '型号1':req.body.model,
       'TAC':req.body.TAC,
-      image:req.body.image
+      image:req.body.image,
     });
   }
 };
