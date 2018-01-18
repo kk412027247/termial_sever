@@ -62,16 +62,81 @@ exports.createTac = (req, res)=>{
 
 
 
+const fsAsync = (path)=>(
+  new Promise((resolve,reject)=>{
+    fs.readFile(path,(err,data)=>{
+      if(err){
+        reject (err)
+      }else{
+        fs.unlink(path,err=>{if(err)console.log(err)});
+        resolve (data);
+      }
+    })
+  })
+);
 
+const createCache = async (req) =>{
+  if(req.file){
+    if(req.file.size < 16*1024*1024){
+      const imageBuffer = await fsAsync(req.file.path);
+      return {
+        '品牌1':req.body.brand,
+        '型号1':req.body.model,
+        'TAC':req.body.TAC,
+        image:imageBuffer,
+        auth:req.session.userInfo.userName,
+      };
+    }
+  }else{
+    return {
+      '品牌1':req.body.brand,
+      '型号1':req.body.model,
+      'TAC':req.body.TAC,
+      image:req.body.image,
+      auth:req.session.userInfo.userName,
+    };
+  }
+};
+
+
+//app端用的路由
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
     const result = await tacModel.createTacWithImage(req);
-    if(result === 'TACExist' || result === 'imageIsToLarge'){
-      throw  result
-    }else{
+ 
+     //如果是数据库不存的数据，就新增一条
+    if(result.status === 'saved'){
+      const cache = await createCache(req);
+      await authModel.history(req.session.userInfo.userName, {
+        status:'saved',
+        tacDoc:result._id,
+        date:new Date(),
+        ...cache,
+      }) ;
       return spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);
-    }
-  })()
+
+      //不是自己写入的话，或者不是自己当天写入，缓存在个人中心
+    }else if(result.auth!==req.session.userInfo.userName || new Date(new Date().toLocaleDateString()) > result.data){
+      const cache = await createCache(req);
+      return authModel.history(req.session.userInfo.userName,{
+        status:'noSaved',
+        tacDoc:result._id,
+        date:new Date(),
+        ...cache,
+      });
+
+      //如果是自己存的，并且是当天存入的，则跳转到修改页面
+    }else if(result.auth===req.session.userInfo.userName && new Date(new Date().toLocaleDateString()) <= result.data ){
+      const cache = await createCache(req);
+      return authModel.history(req.session.userInfo.userName,{
+        status:'reWrite',
+        tacDoc:result._id,
+        date:new Date(),
+        ...cache,
+      });
+    }else if(result === 'imageIsToLarge'){
+      throw  result
+    }})()
     .then(success=>res.send(JSON.stringify(success)))
     .catch(err=>res.send(JSON.stringify(err)))
 };

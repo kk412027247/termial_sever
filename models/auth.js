@@ -29,5 +29,12 @@ authSchema.statics.updateHistory= async function(userName, histories){
   );
 };
 
+authSchema.statics.history = async function(userName,doc){
+  return  this.update(
+    {userName},
+    {$push:{history: doc}}
+  )
+};
+
 module.exports = mongoose.model('auth',authSchema);
 
