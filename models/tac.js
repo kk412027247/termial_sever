@@ -34,10 +34,9 @@ const tacSchema = new mongoose.Schema({
   "型号7" : String,
   "可信度7" : Number,
   "新可信度7" : Number,
-  data:{type:Date, default:Date.now} ,
-  image:Buffer,
+  imagePath:String,
   auth:String,
-  imageName:{type:String, default :(Date.now()+'\.jpeg')},
+  date:{type: Date, default: Date.now()}
 });
 
 tacSchema.plugin(mongooseToCsv,{
@@ -109,46 +108,17 @@ tacSchema.statics.createTac = async function(docs){
   return this.create(docs)
 };
 
-
-const fsAsync = (path)=>(
-  new Promise((resolve,reject)=>{
-    fs.readFile(path,(err,data)=>{
-      if(err){
-        reject (err)
-      }else{
-        fs.unlink(path,err=>{if(err)console.log(err)});
-        resolve (data);
-      }
-    })
-  })
-);
-
 tacSchema.statics.createTacWithImage = async function(req){
   const check = await this.findOne({TAC: req.body.TAC});
   if(!!check){return check}
-  if(req.file){
-    if(req.file.size < 16*1024*1024){
-      const imageBuffer = await fsAsync(req.file.path);
-      const result = await this.create({
-        '品牌1':req.body.brand,
-        '型号1':req.body.model,
-        'TAC':req.body.TAC,
-        image:imageBuffer,
-        auth:req.session.userInfo.userName,
-      });
-      return {status:'saved',...result}
-    }else{
-      return 'imageIsToLarge'
-    }
-  }else{
-    return this.create({
+    const result = await this.create({
       '品牌1':req.body.brand,
       '型号1':req.body.model,
       'TAC':req.body.TAC,
-      image:req.body.image,
+      imagePath:req.file ? req.file.path : undefined,
       auth:req.session.userInfo.userName,
     });
-  }
+    return {status:'saved',...result}
 };
 
 

@@ -27,3 +27,9 @@ db.getCollection('updates').find({date:{$gte:ISODate("2017-12-02"),$lt:ISODate("
 ```
 
 ### cookies会根据请求地址不同，而不同？？
+
+
+### 修改属性名
+```
+db.tac.update({},{$rename:{"data":"date"}},{multi:true})
+```

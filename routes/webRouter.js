@@ -11,7 +11,20 @@ const check = require('../check/check');
 
 //这个中间件，大概是用来做上传文件储存的
 const multer = require('multer');
-const upload = multer({dest: 'uploads/'});
+//确定粗存目录以及文件名
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+
 
 //爬虫
 router.post('/spider', spiderController.spider);
