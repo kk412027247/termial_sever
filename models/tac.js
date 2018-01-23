@@ -110,15 +110,25 @@ tacSchema.statics.createTac = async function(docs){
 
 tacSchema.statics.createTacWithImage = async function(req){
   const check = await this.findOne({TAC: req.body.TAC});
-  if(!!check){return check}
-    const result = await this.create({
+  if(!!check) return check ;
+  const result = await this.create({
+    '品牌1':req.body.brand,
+    '型号1':req.body.model,
+    'TAC':req.body.TAC,
+    imagePath:req.file ? req.file.path : undefined,
+    auth:req.session.userInfo.userName,
+  });
+  return {status:'saved',...result._doc}
+};
+
+tacSchema.statics.updateTacWithImage = async function(req){
+  return this.update({TAC:req.body.TAC},{
+    $set:{
       '品牌1':req.body.brand,
       '型号1':req.body.model,
-      'TAC':req.body.TAC,
-      imagePath:req.file ? req.file.path : undefined,
-      auth:req.session.userInfo.userName,
-    });
-    return {status:'saved',...result}
+      imagePath:req.file ? req.file.path : undefined,  
+    }
+  })
 };
 
 

@@ -35,10 +35,11 @@ router.post('/query',check.query ,getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/getTacId',check.update,tacController.getTacId);
+router.post('/searchHistory',authController.searchHistory);
 
 //上传文件
 router.post('/uploadTac',check.basie,upload.single('file'),uploadController.uploadTac);
-router.post('/createTacWithImage',upload.single('image'), tacController.createTacWithImage);
+router.post('/createTacWithImage',check.basie,upload.single('image'), tacController.createTacWithImage);
 
 //新增TAC数据
 router.post('/createTac',check.create, tacController.createTac);
@@ -48,6 +49,7 @@ router.post('/createTac',check.create, tacController.createTac);
 //修改
 router.post('/updates', check.update, getListController.updates);
 router.post('/updateTac', check.basie, tacController.updateTac);
+router.post('/updateTacWithImage',upload.single('image'), tacController.updateTacWithImage);
 
 //保存数据
 router.post('/saveUploadTac', check.basie, tacController.saveUploadTac);

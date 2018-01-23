@@ -86,3 +86,9 @@ exports.updateUser = (req, res) => {
     .then(result=>res.send(JSON.stringify(result)))
     .catch(err=>res.send(JSON.stringify(err)));
 };
+
+exports.searchHistory = (req, res) =>{
+  authModel.searchHistory(req)
+    .then(success=>res.send(JSON.stringify(success)))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
