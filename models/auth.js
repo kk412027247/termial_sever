@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const fs = require("fs");
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient: true});
 mongoose.Promise = global.Promise;
 
@@ -32,36 +33,109 @@ authSchema.statics.updateHistory= async function(userName, histories){
 authSchema.statics.history = async function(userName,doc){
   return  this.update(
     {userName},
-    {$push:{history: doc }}
+    {$push:{
+      history:{
+        $each:[doc],
+        $sort:{date:-1},
+        $slice:30,
+    }}}
   )
 };
 
-authSchema.statics.getHistory = async function(req){
-  return this.findOne({
-    userName:req.session.userInfo.userName,
-    'history.TAC':req.body.TAC,
-  })
-};
-
 authSchema.statics.updateUserHistory = async function(req){
-  return this.update({
+
+  const file = await this.findOne({
     userName:req.session.userInfo.userName,
-    'history.TAC':req.body.TAC,
+    history:{$elemMatch:{
+        status:'cache',
+        TAC:Number(req.body.TAC),
+      }}
+  },{
+    'history.$':1,
+    _id:0
+  });
+
+  if(file && file.history[0].imagePath){
+    fs.unlink('./'+file.history[0].imagePath,(err)=>{
+      if(err)console.log(err);
+    })
+  }
+  
+  await this.update({
+    userName:req.session.userInfo.userName,
+    'history.TAC':Number(req.body.TAC),
   },{
     $set:{
-      //修改数组中的值
-      'history.$.brand':req.body.brand,
-      'history.$.model':req.body.model,
-      'history.$.imagePath':req.file ? req.file.path : undefined,
-    }
+      'history.$.型号1':req.body.brand,
+      'history.$.品牌1':req.body.model,
+      'history.$.imagePath':req.file ? req.file.path : null,
+      'history.$.imageWidth':req.body.imageWidth ? req.body.imageWidth : null,
+      'history.$.imageHeight':req.body.imageHeight ? req.body.imageHeight : null,
+      'history.$.date':new Date()
+    },
+  });
+  return this.update({
+      userName:req.session.userInfo.userName
+  },{
+    $push:{history:{$each:[],$sort:{date:-1}}}
   })
 };
 
-authSchema.statics.searchHistory = async function(req){
+// 搜索个人中心记录
+authSchema.statics.searchUserHistory = async function(req){
+  //console.log(req);
   return this.findOne({
     userName:req.session.userInfo.userName,
     'history.TAC':req.body.TAC
+  },{
+    'history.$':1,
+    _id:0
   });
+};
+
+authSchema.statics.checkHistory = async function(req){
+  return this.findOne({
+    userName:req.session.userInfo.userName,
+    'history.TAC':Number(req.body.TAC)
+  })
+};
+
+authSchema.statics.getUserHistory = async function(req){
+  return this.findOne({
+    userName:req.session.userInfo.userName
+  },{
+    //控制返回数组的长度，以及跳过的数量
+    userName:0, level:0, passWord:0, history:{$slice:[req.query.skip*3, 3]}
+  })
+};
+
+authSchema.statics.deleteTacWithImage = async function(req){
+  const file = await this.findOne({
+    userName:req.session.userInfo.userName,
+    history:{$elemMatch:{
+      status:'cache',
+      TAC:Number(req.body.TAC),
+    }}
+  },{
+    'history.$':1,
+    _id:0
+  });
+
+  if(file && file.history[0].imagePath){
+    fs.unlink('./'+file.history[0].imagePath,(err)=>{
+      if(err)console.log(err);
+    })
+  }
+ 
+  await this.update({
+    userName:req.session.userInfo.userName
+  },{
+    $pull:{history:{TAC:Number(req.body.TAC)}}
+  })
+};
+
+authSchema.statics.deleteRedundance = async function(){
+  return this.find({'history.imagePath':{$exists:true}},{'history.imagePath':1, _id:0});
 };
 
 module.exports = mongoose.model('auth',authSchema);

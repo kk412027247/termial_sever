@@ -1,4 +1,5 @@
 const authModel = require('../models/auth');
+const fs =require('fs');
 
 
 exports.signIn = (req, res)=>{
@@ -87,8 +88,15 @@ exports.updateUser = (req, res) => {
     .catch(err=>res.send(JSON.stringify(err)));
 };
 
-exports.searchHistory = (req, res) =>{
-  authModel.searchHistory(req)
+exports.searchUserHistory = (req, res) =>{
+  authModel.searchUserHistory(req)
     .then(success=>res.send(JSON.stringify(success)))
     .catch(err=>res.send(JSON.stringify(err)));
 };
+
+exports.getUserHistory = (req, res) =>{
+  authModel.getUserHistory(req)
+    .then(result=>res.send(JSON.stringify(result)))
+    .catch(err=>res.send(JSON.stringify(err)))
+};
+

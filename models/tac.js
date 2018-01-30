@@ -1,8 +1,8 @@
-const fs = require('fs');
 const mongoose = require('mongoose');
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient:true});
 mongoose.Promise = global.Promise;
 const mongooseToCsv = require('mongoose-to-csv');
+const fs = require('fs');
 
 const tacSchema = new mongoose.Schema({
   "TAC" : Number,
@@ -35,6 +35,8 @@ const tacSchema = new mongoose.Schema({
   "可信度7" : Number,
   "新可信度7" : Number,
   imagePath:String,
+  imageWidth:Number,
+  imageHeight:Number,
   auth:String,
   date:{type: Date, default: Date.now()}
 });
@@ -109,13 +111,16 @@ tacSchema.statics.createTac = async function(docs){
 };
 
 tacSchema.statics.createTacWithImage = async function(req){
-  const check = await this.findOne({TAC: req.body.TAC});
+  const check = await this.findOne({TAC: Number(req.body.TAC)});
   if(!!check) return check ;
+  //console.log(req.body,req.file);
   const result = await this.create({
     '品牌1':req.body.brand,
     '型号1':req.body.model,
     'TAC':req.body.TAC,
-    imagePath:req.file ? req.file.path : undefined,
+    imagePath:req.file ? req.file.path : null,
+    imageWidth:req.body.imageWidth ? req.body.imageWidth : null,
+    imageHeight:req.body.imageHeight ? req.body.imageHeight : null,
     auth:req.session.userInfo.userName,
   });
   return {status:'saved',...result._doc}
@@ -126,10 +131,31 @@ tacSchema.statics.updateTacWithImage = async function(req){
     $set:{
       '品牌1':req.body.brand,
       '型号1':req.body.model,
-      imagePath:req.file ? req.file.path : undefined,  
+      imagePath:req.file ? req.file.path : null,
+      imageWidth:req.body.imageWidth ? req.body.imageWidth : null,
+      imageHeight:req.body.imageHeight ? req.body.imageHeight : null,
     }
   })
 };
 
+tacSchema.statics.deleteTacWithImage = async function(req){
+  const check = await this.findOne({TAC:req.body.TAC});
+  if(check.auth === req.session.userInfo.userName){
+    if(!check.imagePath) return;
+    fs.unlink('./'+check.imagePath,(err)=>{
+      if(err)console.log(err);
+    });
+    await this.remove({TAC:req.body.TAC});
+  }
+};
+
+tacSchema.statics.deleteImageByTAC = async function(req){
+  const file = await this.findOne({TAC:req.body.TAC},{imagePath:1,_id:0});
+  if(file.imagePath){
+    fs.unlink('./'+file.imagePath,(err)=>{
+      if(err)console.log(err);
+    })
+  }
+};
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

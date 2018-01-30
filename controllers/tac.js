@@ -49,7 +49,6 @@ exports.createTac = (req, res)=>{
 };
 
 
-
 //app端用的路由
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
@@ -63,44 +62,62 @@ exports.createTacWithImage = (req, res) =>{
         ...result,
         date:new Date()
       });
-      return spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);
+      await spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);
+      return 'saved';
       
       //不是自己写入的话，缓存在个人中心
     }else if(result.auth!==userName){
-      const check = await authModel.getHistory(req);
-      if(!!check) throw 'history exist';
-      return authModel.history(userName,{
+      const check = await authModel.checkHistory(req);
+      if(!!check) throw 'exist';
+      await authModel.history(userName,{
         status:'cache',
         _id:result._id,
-        ...req.body,
+        "品牌1" : req.body.brand,
+        "型号1" :req.body.model,
         TAC:Number(req.body.TAC),
-        imagePath:req.file ? req.file.path : undefined,
+        imagePath:req.file ? req.file.path : null,
+        imageWidth:req.body.imageWidth ? req.body.imageWidth : null,
+        imageHeight:req.body.imageHeight ? req.body.imageHeight : null,
         date:new Date()
       });
+      return 'cache'
     }else if(result === 'imageIsToLarge'){
       throw  result
     }})()
-    .then(success=>res.send(JSON.stringify(success)))
-    .catch(err=>res.send(JSON.stringify(err)))
+    .then(success=>{
+      //console.log(success);
+      res.send(JSON.stringify(success))
+    })
+    .catch(err=>res.send(JSON.stringify(err)));
 };
-
 
 //如果在cache中找到的话，在APP中一定条件允许更新
 exports.updateTacWithImage = (req, res) => {
   (async ()=>{
-    const result = await tacModel.findOne({TAC: req.body.TAC});
+    const result = await tacModel.findOne({TAC: Number(req.body.TAC)});
     const userName = req.session.userInfo.userName;
     
-    //如果是自己存的，并且是当天存入的，则跳转录入页面,并修改
-    if(result.auth===userName && new Date(new Date().toLocaleDateString()) <= result.date ){
-      await   authModel.updateUserHistory(req);
-      return  tacModel.updateTacWithImage(req)
+    //如果是自己存的，则跳转录入页面,并修改
+    if(result.auth === userName  ){
+      await tacModel.deleteImageByTAC(req);
+      await tacModel.updateTacWithImage(req);
+      await authModel.updateUserHistory(req);
+
     }else{
-      //其他条件，只缓存个人中心里面
-      return authModel.updateUserHistory(req)
+      //其他条件，只修改个人中心里面的缓存数据
+      await authModel.updateUserHistory(req);
+
     }
-    
+    return 'updated';
+  })().then(success=>res.send(JSON.stringify(success)))
+    .catch(err=>res.send(JSON.stringify(err)));
+};
+
+exports.deleteTacWithImage = (req, res) => {
+  (async ()=>{
+    await tacModel.deleteTacWithImage(req);
+    await authModel.deleteTacWithImage(req);
+    return 'delete'
   })().then(success=>res.send(JSON.stringify(success)))
     .catch(err=>res.send(JSON.stringify(err)))
 };
-

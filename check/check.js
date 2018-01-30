@@ -1,7 +1,8 @@
 //登陆验证中间件
 
 exports.query = (req, res, next)=>{
-  if(!!req.session.userInfo && req.session.userInfo.level === 4){
+  //console.log(req.session.userInfo)
+  if(!!req.session.userInfo && req.session.userInfo.level >= 1){
     //console.log(req.session.userInfo);
     next()
   }else{
@@ -10,7 +11,7 @@ exports.query = (req, res, next)=>{
 };
 
 exports.create = (req, res, next)=>{
-  if(!!req.session.userInfo && req.session.userInfo.level === 4){
+  if(!!req.session.userInfo && req.session.userInfo.level >=1 ){
     //console.log(req.session.userInfo);
     next()
   }else{
@@ -29,7 +30,7 @@ exports.handleUser = (req,res,next)=>{
 };
 
 exports.updateHistory = (req,res,next)=>{
-  if(!!req.session.userInfo && req.session.userInfo.level === 4){
+  if(!!req.session.userInfo && req.session.userInfo.level >= 1){
     //console.log(req.session.userInfo.level);
     next()
   }else{
@@ -43,7 +44,7 @@ exports.basie = (req,res,next)=>{
     next()
   }else{
     //console.error('查询权限出错');
-    res.send(JSON.stringify([]))
+    res.send(JSON.stringify(['needSession']))
   }
 };
 

@@ -8,6 +8,7 @@ const updateController = require('../controllers/update');
 const uploadController = require('../controllers/upload');
 const spiderController = require('../controllers/spider');
 const check = require('../check/check');
+const fs = require('fs');
 
 //这个中间件，大概是用来做上传文件储存的
 const multer = require('multer');
@@ -23,9 +24,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
-
-
 //爬虫
 router.post('/spider', spiderController.spider);
 router.post('/add', getListController.add);
@@ -35,25 +33,26 @@ router.post('/query',check.query ,getListController.query);
 router.post('/getInfoTac', check.basie, getListController.getInfoTac);
 router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/getTacId',check.update,tacController.getTacId);
-router.post('/searchHistory',authController.searchHistory);
+router.post('/searchUserHistory',check.query,authController.searchUserHistory);
+router.get('/getUserHistory',check.basie, authController.getUserHistory);
 
 //上传文件
-router.post('/uploadTac',check.basie,upload.single('file'),uploadController.uploadTac);
-router.post('/createTacWithImage',check.basie,upload.single('image'), tacController.createTacWithImage);
+router.post('/uploadTac', check.basie, upload.single('file'), uploadController.uploadTac);
+router.post('/createTacWithImage', check.create, upload.single('image'), tacController.createTacWithImage);
 
 //新增TAC数据
-router.post('/createTac',check.create, tacController.createTac);
-
-
+router.post('/createTac', check.create, tacController.createTac);
 
 //修改
 router.post('/updates', check.update, getListController.updates);
 router.post('/updateTac', check.basie, tacController.updateTac);
-router.post('/updateTacWithImage',upload.single('image'), tacController.updateTacWithImage);
+router.post('/updateTacWithImage',check.create, upload.single('image'), tacController.updateTacWithImage);
+
+//删除
+router.post('/deleteTacWithImage', check.create, tacController.deleteTacWithImage);
 
 //保存数据
 router.post('/saveUploadTac', check.basie, tacController.saveUploadTac);
-
 
 //登陆
 router.post('/signIn', authController.signIn);
@@ -68,15 +67,12 @@ router.get('/getAllUserList', check.handleUser, authController.getAllUserList);
 router.post('/removeUser', check.handleUser, authController.removeUser);
 router.post('/updateUser', check.handleUser, authController.updateUser);
 
-
 //下载
 router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 router.get('/downloadTemplate',downloadController.downloadTemplate);
 
-
 //查询修改记录
 router.get('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);
-
 
 module.exports = router;
