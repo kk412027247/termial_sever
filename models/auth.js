@@ -43,7 +43,7 @@ authSchema.statics.history = async function(userName,doc){
 };
 
 authSchema.statics.updateUserHistory = async function(req){
-
+  //删除缓存中的 记录占照片
   const file = await this.findOne({
     userName:req.session.userInfo.userName,
     history:{$elemMatch:{
@@ -100,6 +100,8 @@ authSchema.statics.checkHistory = async function(req){
   })
 };
 
+
+//历史记录获取获取
 authSchema.statics.getUserHistory = async function(req){
   return this.findOne({
     userName:req.session.userInfo.userName
@@ -110,6 +112,7 @@ authSchema.statics.getUserHistory = async function(req){
 };
 
 authSchema.statics.deleteTacWithImage = async function(req){
+  //删除缓存中的 记录占照片
   const file = await this.findOne({
     userName:req.session.userInfo.userName,
     history:{$elemMatch:{
