@@ -159,13 +159,14 @@ authSchema.statics.getUserHistoryLength = async function(req){
 };
 
 authSchema.statics.updateHistoryByPC = async function(req){
-  //先把自己和其他用户的记录更新
   if(req.body.status === 'saved'){
+    //先把其他用户的记录的记录删掉
     await this.updateOne({
       history: {$elemMatch: {status: 'saved', TAC: req.body.TAC}}
     },{
       $pull: {history: {TAC: req.body.TAC}}
     });
+    //再更新自己的状态
     await this.updateOne({
       userName:req.session.userInfo.userName,
       'history.TAC':req.body.TAC,
@@ -175,14 +176,17 @@ authSchema.statics.updateHistoryByPC = async function(req){
         'history.$.date': new Date(),
       }
     });
+    //修改后，数组排序
     await this.updateOne({
       userName:req.session.userInfo.userName
     },{
       $push:{history:{$each:[],$sort:{date:-1}}}
     });
+    //返回刚刚被修改的 文档
     return this.findOne({
-        
-    })
+      userName:req.session.userInfo.userName,
+      'history.TAC':req.body.TAC,
+    },{'history.$':1})
   }else{
     return this.updateOne({
       userName:req.session.userInfo.userName,

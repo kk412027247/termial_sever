@@ -133,7 +133,7 @@ exports.getUserHistoryByPC =  async (req, res) => {
 };
 
 exports.updateHistoryByPC = async (req, res)=>{
-  const doc =await authModel.updateHistoryByPC(req);
-  console.log(doc);
+  const doc =(await authModel.updateHistoryByPC(req)).history[0];
+  await tacModel.updateHistoryByPC(req.session.userInfo.userName, doc);
   res.send(JSON.stringify('updateSuccess'))
 };

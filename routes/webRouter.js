@@ -73,6 +73,10 @@ router.post('/updateUser', check.handleUser, authController.updateUser);
 router.get('/download', check.download, downloadController.download);
 router.get('/downloadTac', check.download, downloadController.downloadTac);
 router.get('/downloadTemplate',downloadController.downloadTemplate);
+router.get('/downloadTacByDate', check.download, downloadController.downloadTacByDate);
+router.get('/downloadInfoByDate', check.download, downloadController.downloadInfoByDate);
+
+
 
 //查询修改记录
 router.get('/getUpdateHistory',check.updateHistory,updateController.getUpdateHistory);

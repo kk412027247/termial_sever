@@ -3,6 +3,7 @@ mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient:true});
 mongoose.Promise = global.Promise;
 const mongooseToCsv = require('mongoose-to-csv');
 const fs = require('fs');
+const doNoting = (...arg) => arg;
 
 const tacSchema = new mongoose.Schema({
   "TAC" : Number,
@@ -86,8 +87,6 @@ tacSchema.statics.saveUploadTac = function(doc,callback){
   this.insert(doc,callback)
 };
 
-const doNoting = (...arg) => arg;
-
 tacSchema.statics.updateTac = async function(docs){
   const histories = [];
   for (let doc of docs){
@@ -160,9 +159,20 @@ tacSchema.statics.deleteImageByTAC = async function(req){
   }
 };
 
-tacSchema.statics.updateHistoryByPC = async function(req){
-  
+tacSchema.statics.updateHistoryByPC = async function(userName, doc){
+  const {_id,status, ..._doc} = doc;
+  doNoting(_id,status);
+  const check = await this.findOne({TAC:doc.TAC});
+  if(check.imagePath){
+    fs.unlink('./'+check.imagePath,(err)=>{
+      if(err)console.log(err);
+    });
+  }
+  await this.updateOne({
+    TAC:doc.TAC
+  },{
+    $set:{..._doc, auth: userName, date: new Date()}
+  })
 };
-
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

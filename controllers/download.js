@@ -27,16 +27,27 @@ exports.download = (req, res) =>{
 
     fs.watchFile(file1,()=>{
       fs.unwatchFile(file1);
-      const buffer = fs.readFileSync(file1);
-      //这里生成了GBK格式的文件给excel打开；
-      fs.writeFileSync(file1,iconv.encode(buffer,'GB18030'));
-      res.download(file1,()=>{
-        fs.unlinkSync(file1)
+      //回调地狱版233，因为只用一次,所以就不该成async/await了
+      fs.readFile(file1,(err,buffer)=>{
+        if(!err){
+          fs.writeFile(file1,iconv.encode(buffer,'GB18030'),(err)=>{
+            if(!err)res.download(file1,()=>{
+              fs.unlink(file1,()=>{})
+            });
+          })
+        }
       });
-
+      
+      // //node自带同步版本，虽然简答和直观,但会影响整个服务器的性能
+      // const buffer = fs.readFileSync(file1);
+      // //这里生成了GBK格式的文件给excel打开；
+      // fs.writeFileSync(file1,iconv.encode(buffer,'GB18030'));
+      // res.download(file1,()=>{
+      //   fs.unlinkSync(file1)
+      // });
     });
 
-    console.log(`${file1}文件生成中`);
+    //console.log(`${file1}文件生成中`);
   }
 };
 
@@ -63,17 +74,94 @@ exports.downloadTac = (req, res) =>{
 
     fs.watchFile(file2,()=>{
       fs.unwatchFile(file2);
-      const buffer = fs.readFileSync(file2);
-      //这里生成了GBK格式的文件给excel打开；
-      fs.writeFileSync(file2,iconv.encode(buffer,'GB18030'));
-      res.download(file2,()=>{
-        fs.unlinkSync(file2)
+      //又是回调地狱版，不想写一堆promise了，就酱紫吧！
+      fs.readFile(file2,(err,buffer)=>{
+        if(!err){
+          fs.writeFile(file2,iconv.encode(buffer,'GB18030'),(err)=>{
+            if(!err)res.download(file2,()=>{
+              fs.unlink(file2,()=>{})
+            });
+          })
+        }
       });
-    });
 
-    console.log(`${file2}文件生成中`);
+      // const buffer = fs.readFileSync(file2);
+      // //这里生成了GBK格式的文件给excel打开；
+      // fs.writeFileSync(file2,iconv.encode(buffer,'GB18030'));
+      //
+      // res.download(file2,()=>{
+      //   fs.unlinkSync(file2)
+      // });
+    });
+    //console.log(`${file2}文件生成中`);
   }
 };
+
+
+const createFile = (file, res) =>{
+  fs.watchFile(file,()=>{
+    fs.unwatchFile(file);
+    //又是回调地狱版，不想写一堆promise了，就酱紫吧！
+    fs.readFile(file,(err,buffer)=>{
+      if(!err){
+        fs.writeFile(file,iconv.encode(buffer,'GB18030'),(err)=>{
+          if(!err)res.download(file,()=>{
+            fs.unlink(file,()=>{})
+          });
+        });
+      }
+    });
+  });
+};
+
+exports.downloadTacByDate = (req, res)=>{
+  const fileName = Date.now();
+  const file = `./public/tac&date${fileName}.csv`;
+  const {startDate, endDate} = req.query;
+
+  tacModel
+    .count({date: {$gte: new Date(startDate), $lt: new Date(endDate)}})
+    .then(number=>{
+      if(number === 0){
+        res.download('./public/template/查无结果');
+      }else{
+        tacModel
+          .find({date: {$gte: new Date(startDate), $lt: new Date(endDate)}})
+          .sort({date: 1})
+          .cursor()
+          .pipe(tacModel.csvTransformStream())
+          .pipe(fs.createWriteStream(file));
+        createFile(file,res)
+      }
+    });
+};
+
+
+
+
+exports.downloadInfoByDate = (req, res)=>{
+  const fileName = Date.now();
+  const file = `./public/info&date${fileName}.csv`;
+  const {startDate, endDate} =  req.query ;
+  //getListModel.findOne({});
+
+  getListModel
+    .count({date: {$gte: new Date(startDate), $lt: new Date(endDate)}})
+    .then(number=>{
+      if(number === 0){
+        res.download('./public/template/查无结果');
+      }else{
+        getListModel
+          .find({date: {$gte: new Date(startDate), $lt: new Date(endDate)}})
+          .sort()
+          .cursor()
+          .pipe(getListModel.csvTransformStream())
+          .pipe(fs.createWriteStream(file));
+        createFile(file,res)
+      }
+    });
+};
+
 
 exports.downloadTemplate = (req,res)=>{
   res.download('./public/template/template.xlsx')
