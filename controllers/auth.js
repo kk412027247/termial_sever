@@ -1,6 +1,5 @@
 const authModel = require('../models/auth');
-const fs =require('fs');
-
+const tacModel = require('../models/tac');
 
 exports.signIn = (req, res)=>{
   authModel.signIn(req.body,(err, doc)=>{
@@ -100,3 +99,41 @@ exports.getUserHistory = (req, res) =>{
     .catch(err=>res.send(JSON.stringify(err)))
 };
 
+exports.getUserHistoryByPC =  async (req, res) => {
+  const history = (await authModel.getUserHistoryByPC(req)).history;
+
+  // promise 的并发虽然虽然比较快，但是嵌套循环太多，影响效率，并且写法太繁琐，放弃。
+  // if(Array.isArray(history)){
+  //   //promise 并发设置，写起来没有次序发送的简洁，但是这样运行比较快
+  //   const originId = history.reduce((pre,cur)=>{
+  //     if(cur.status === 'cache'){
+  //       return [...pre, tacModel.findOne({_id:cur._id})]
+  //     }else{
+  //       return pre
+  //     }
+  //   },[]);
+  //   const originDoc = await Promise.all(originId) ;
+  //
+  // }
+
+  const netHistory = [];
+  if(Array.isArray(history)){
+    for(let _history of history){
+      if(_history.status === 'cache'){
+        netHistory.push({
+          cache:_history,
+          origin:await tacModel.findOne({_id:_history._id})
+        });
+      }else{
+        netHistory.push(_history)
+      }
+    }
+  }
+  res.send(JSON.stringify(netHistory))
+};
+
+exports.updateHistoryByPC = async (req, res)=>{
+  const doc =await authModel.updateHistoryByPC(req);
+  console.log(doc);
+  res.send(JSON.stringify('updateSuccess'))
+};

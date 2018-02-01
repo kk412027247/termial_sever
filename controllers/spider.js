@@ -294,9 +294,12 @@ exports.spider = (req, res)=>{
 
 exports.handleSpider = async (queries) => {
   //console.log(queries);
+  //厂商和型号，用空格可开，输入的时候记得隔开。
   const result = {errKeyword:[],valid:[],exist:[]};
+  
   for(let keyWord of queries){
-    //console.log(keyWord);
+    const info = keyWord.split(' ');
+    const deviceInfo = {'厂商(中文)':info[0], '型号':info[1]};
     const generalUrl = await getKeyWordResult(keyWord);
     //console.log(generalUrl);
     if(typeof generalUrl === 'string'){
@@ -305,15 +308,18 @@ exports.handleSpider = async (queries) => {
         '厂商(中文)':{$regex:generalPage['厂商(中文)'], $options:"i"},
         '型号':{$regex:generalPage['型号'], $options:"i"}
       });
+
       if(!check){
         const detailInfo = await getDetail(generalPage.url);
         result.valid.push({...list1,...generalPage,...detailInfo});
-        await getListModel.create({...list1,...generalPage,...detailInfo})
+        //在info数据库中创建一条爬虫结果，用录入的型号和厂商名称替换 爬虫得到的厂商与品牌
+        await getListModel.create({...list1,...generalPage,...detailInfo,...deviceInfo})
       }else{
         result.exist.push(check);
       }
     }else{
-      result.errKeyword.push(generalUrl.errKeyword)
+      await getListModel.create(deviceInfo);
+      result.errKeyword.push(generalUrl.errKeyword);
     }
   }
   return result;

@@ -26,13 +26,13 @@ exports.query = (req,res)=>{
 
 
 //旧版回调函数路由， 备用录用，防止神马乱七八糟BUG
-exports._query = (req,res)=>{
-  getListModel._query(req.body.query,(err, doc)=>{
-    if(err) console.log(err);
-    //console.log('查询结果',doc);
-    res.send(doc)
-  });
-};
+// exports._query = (req,res)=>{
+//   getListModel._query(req.body.query,(err, doc)=>{
+//     if(err) console.log(err);
+//     //console.log('查询结果',doc);
+//     res.send(doc)
+//   });
+// };
 
 
  //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。

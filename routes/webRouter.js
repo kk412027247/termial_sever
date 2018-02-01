@@ -8,7 +8,7 @@ const updateController = require('../controllers/update');
 const uploadController = require('../controllers/upload');
 const spiderController = require('../controllers/spider');
 const check = require('../check/check');
-const fs = require('fs');
+//const fs = require('fs');
 
 //这个中间件，大概是用来做上传文件储存的
 const multer = require('multer');
@@ -35,6 +35,7 @@ router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
 router.post('/getTacId',check.update,tacController.getTacId);
 router.post('/searchUserHistory',check.query,authController.searchUserHistory);
 router.get('/getUserHistory',check.basie, authController.getUserHistory);
+router.get('/getUserHistoryByPC',authController.getUserHistoryByPC);
 
 //上传文件
 router.post('/uploadTac', check.basie, upload.single('file'), uploadController.uploadTac);
@@ -47,6 +48,7 @@ router.post('/createTac', check.create, tacController.createTac);
 router.post('/updates', check.update, getListController.updates);
 router.post('/updateTac', check.basie, tacController.updateTac);
 router.post('/updateTacWithImage',check.create, upload.single('image'), tacController.updateTacWithImage);
+router.post('/updateHistoryByPC',check.create, authController.updateHistoryByPC);
 
 //删除
 router.post('/deleteTacWithImage', check.create, tacController.deleteTacWithImage);

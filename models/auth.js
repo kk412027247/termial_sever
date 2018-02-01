@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const fs = require("fs");
+//const authModel = require('./tac');
 mongoose.connect(`mongodb://localhost/terminal`,{useMongoClient: true});
 mongoose.Promise = global.Promise;
 
@@ -137,9 +138,60 @@ authSchema.statics.deleteTacWithImage = async function(req){
   })
 };
 
-authSchema.statics.deleteRedundance = async function(){
-  return this.find({'history.imagePath':{$exists:true}},{'history.imagePath':1, _id:0});
+
+authSchema.statics.getUserHistoryByPC = async function(req){
+  return this.findOne({
+    userName:req.session.userInfo.userName
+  },{ userName:0, level:0, passWord:0, history:{$slice:[req.query.skip*10, 10]}})
 };
+
+authSchema.statics.getUserHistoryLength = async function(req){
+  const history = await this.findOne({
+    userName:req.session.userInfo.userName
+  },{
+    history:1
+  });
+  if(!!history){
+    return history.length;
+  }else{
+    return 0
+  }
+};
+
+authSchema.statics.updateHistoryByPC = async function(req){
+  //先把自己和其他用户的记录更新
+  if(req.body.status === 'saved'){
+    await this.updateOne({
+      history: {$elemMatch: {status: 'saved', TAC: req.body.TAC}}
+    },{
+      $pull: {history: {TAC: req.body.TAC}}
+    });
+    await this.updateOne({
+      userName:req.session.userInfo.userName,
+      'history.TAC':req.body.TAC,
+    },{
+      $set:{
+        'history.$.status':'saved',
+        'history.$.date': new Date(),
+      }
+    });
+    await this.updateOne({
+      userName:req.session.userInfo.userName
+    },{
+      $push:{history:{$each:[],$sort:{date:-1}}}
+    });
+    return this.findOne({
+        
+    })
+  }else{
+    return this.updateOne({
+      userName:req.session.userInfo.userName,
+    },{
+      $pull:{history:{TAC:Number(req.body.TAC)}}
+    })
+  }
+};
+
 
 module.exports = mongoose.model('auth',authSchema);
 

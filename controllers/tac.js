@@ -52,6 +52,7 @@ exports.createTac = (req, res)=>{
 //app端用的路由
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
+    //console.log(req.body);
     const result = await tacModel.createTacWithImage(req);
     const userName = req.session.userInfo.userName;
 
@@ -62,7 +63,7 @@ exports.createTacWithImage = (req, res) =>{
         ...result,
         date:new Date()
       });
-      await spiderController.handleSpider([req.body['品牌1']+' '+req.body['型号1']]);
+      await spiderController.handleSpider([req.body.brand+' '+req.body.model]);
       return 'saved';
       
       //不是自己写入的话，缓存在个人中心

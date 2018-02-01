@@ -38,6 +38,8 @@ const tacSchema = new mongoose.Schema({
   imageWidth:Number,
   imageHeight:Number,
   auth:String,
+  //图片认证,如果有
+  check:Boolean,
   date:{type: Date, default: Date.now()}
 });
 
@@ -141,11 +143,11 @@ tacSchema.statics.updateTacWithImage = async function(req){
 tacSchema.statics.deleteTacWithImage = async function(req){
   const check = await this.findOne({TAC:req.body.TAC});
   if(check.auth === req.session.userInfo.userName){
+    await this.remove({TAC:req.body.TAC});
     if(!check.imagePath) return;
     fs.unlink('./'+check.imagePath,(err)=>{
       if(err)console.log(err);
     });
-    await this.remove({TAC:req.body.TAC});
   }
 };
 
@@ -157,5 +159,10 @@ tacSchema.statics.deleteImageByTAC = async function(req){
     })
   }
 };
+
+tacSchema.statics.updateHistoryByPC = async function(req){
+  
+};
+
 
 module.exports = mongoose.model('tac',tacSchema,'tac');
