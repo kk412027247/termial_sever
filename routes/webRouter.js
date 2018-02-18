@@ -46,7 +46,8 @@ router.post('/createTac', check.create, tacController.createTac);
 
 //修改
 router.post('/updates', check.update, getListController.updates);
-router.post('/updateTac', check.basie, tacController.updateTac);
+// 以下这条路由是以前做历史储存用的，太废放弃了这个版本。
+//router.post('/updateTac', check.basie, tacController.updateTac);
 router.post('/updateTacWithImage',check.create, upload.single('image'), tacController.updateTacWithImage);
 router.post('/updateHistoryByPC',check.create, authController.updateHistoryByPC);
 

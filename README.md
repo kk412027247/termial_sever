@@ -41,3 +41,17 @@ $elemMatch
 ```
 
 ### 如果用了from-data 记得要加 multer 中间件 ，如果不是，会获取不到请求体
+
+
+### 添加新属性的方法
+```
+db.your_collection.update({},
+                          {$set : {"new_field":1}},
+                          {upsert:false,
+                          multi:true}) 
+                          
+                          
+//Upsert: If set to true, creates a new document when no document matches the query criteria.
+
+//Multi: If set to true, updates multiple documents that meet the query criteria. If set to false, updates one document.                                                  
+```

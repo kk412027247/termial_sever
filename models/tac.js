@@ -93,7 +93,6 @@ tacSchema.statics.updateTac = async function(docs){
     let history ={before:[], after:[]};
     const {_id, invalid, data,..._after} = doc;
     doNoting(invalid,data);
-
     const _before = await this.findByIdAndUpdate({_id},_after);
     const keys= Object.keys(_after);
     for(let key of keys){
@@ -106,6 +105,9 @@ tacSchema.statics.updateTac = async function(docs){
   }
   return histories;
 };
+
+
+
 
 tacSchema.statics.createTac = async function(docs){
   return this.create(docs)

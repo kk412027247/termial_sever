@@ -139,10 +139,11 @@ authSchema.statics.deleteTacWithImage = async function(req){
 };
 
 
+//一页只显示4条记录
 authSchema.statics.getUserHistoryByPC = async function(req){
   return this.findOne({
     userName:req.session.userInfo.userName
-  },{ userName:0, level:0, passWord:0, history:{$slice:[req.query.skip*10, 10]}})
+  },{ userName:0, level:0, passWord:0, history:{$slice:[req.query.skip*4, 4]}})
 };
 
 authSchema.statics.getUserHistoryLength = async function(req){
@@ -159,6 +160,7 @@ authSchema.statics.getUserHistoryLength = async function(req){
 };
 
 authSchema.statics.updateHistoryByPC = async function(req){
+  //存入新的数据，
   if(req.body.status === 'saved'){
     //先把其他用户的记录的记录删掉
     await this.updateOne({
@@ -182,15 +184,18 @@ authSchema.statics.updateHistoryByPC = async function(req){
     },{
       $push:{history:{$each:[],$sort:{date:-1}}}
     });
-    //返回刚刚被修改的 文档
+    //返回刚刚更新好的文档，提供个下一个步骤使用
     return this.findOne({
       userName:req.session.userInfo.userName,
       'history.TAC':req.body.TAC,
     },{'history.$':1})
   }else{
+    //保留原有数据。
     return this.updateOne({
+      //找到自己的文档
       userName:req.session.userInfo.userName,
     },{
+      //删除缓存数据。
       $pull:{history:{TAC:Number(req.body.TAC)}}
     })
   }

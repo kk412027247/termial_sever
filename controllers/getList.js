@@ -1,6 +1,6 @@
 const getListModel = require('../models/getList');
-const updateModel = require('../models/update');
 const tacModel = require('../models/tac');
+const authModel = require('../models/auth');
 const superAgent = require('superagent');
 require('superagent-charset')(superAgent);
 
@@ -35,39 +35,17 @@ exports.query = (req,res)=>{
 // };
 
 
- //因为map filter 是并发处理，不能用在async函数里面，需要用for of 循环。
-exports.updates = (req, res) =>{
-  (async ()=>{
-    const {tac, date,...newValue} = req.body.update;
-    console.log('更新有效:',!!tac,date);
-    // mongoose用promise 找出来的内容，查询结果文档在_doc里面，好坑，切记。
-    const currValue = (await getListModel.findById(req.body.update._id))._doc;
-    const beforeUpdate = [];
-    const afterUpdate = [];
-    
-    for (let key of Object.keys(newValue)){
-      if(JSON.stringify(
-        newValue[key]) !== JSON.stringify(currValue[key])
-        && (!!newValue[key] || !!currValue[key])
-      ){
-        beforeUpdate.push({[key]:currValue[key]});
-        afterUpdate.push({[key]:newValue[key]})
-      }
-    }
-
-    if(beforeUpdate.length !== 0 || afterUpdate.length !== 0){
-      const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
-      await res.send(JSON.stringify(result));
-      await updateModel.create({
-        brand:newValue['厂商(中文)']+' '+newValue['型号'],
-        beforeUpdate,
-        afterUpdate,
-        author:req.session.userInfo.userName,
-      });
-    }else{
-      await res.send(JSON.stringify({}));
-    }
-  })();
+exports.updates =async (req, res) =>{
+  let {tac, ...newValue} = req.body.update;
+  const updateTACPromise = tac.map(_id=>tacModel.findByIdAndUpdate(_id,{
+    $set:{'品牌1':newValue['厂商(中文)'],'型号1':newValue['型号']}
+  }));
+  const updateHistoryPromise = tac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
+    $set:{'history.$.品牌1':newValue['厂商(中文)'],'history.$.型号1':newValue['型号']}
+  },{multi:true}));
+  Promise.all([...updateTACPromise,...updateHistoryPromise]);
+  const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
+  res.send(JSON.stringify(result));
 };
 
 
@@ -188,7 +166,7 @@ const getDetail = async(url)=>{
   //   console.info('Requesting', requestData.url)
   // });
   const status = await page.open(url);
-  console.log(status);
+  //console.log(status);
   const content = await page.property('content');
   const $ = await cheerio.load(content);
   const detail = await $('div#newTb table li span').map((index, element)=>{
@@ -275,9 +253,9 @@ const getDetail = async(url)=>{
         list3['主屏材质'] = ['AMOLED','SLCD','TFT','ASV','IPS','其他','OGS'].findIndex(item=>detail[index + 1].includes(item))+1+'';
         break;
       case '机身接口':
-        list3['充电器接口'] = detail[index + 1].replace(/^[^\，]+\，/, '');
-        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^\，]+)\，/)[1] : undefined;
-        list3['USB接口版本'] = detail[index + 1].replace(/^[^\，]+\，/, '');
+        list3['充电器接口'] = detail[index + 1].replace(/^[^，]+，/, '');
+        list3['耳机接口类型'] = detail[index + 1].includes('耳机')? detail[index + 1].match(/(^[^，]+)，/)[1] : undefined;
+        list3['USB接口版本'] = detail[index + 1].replace(/^[^，]+，/, '');
 
         break;
       case '电池容量':
@@ -357,7 +335,7 @@ const getInfoTac = async (id)=>{
   const tac = await tacModel.find({
     "品牌1":info["厂商(中文)"], "型号1":info["型号"]
   },{
-    "TAC":1
+    "TAC":1,"imagePath":1,
   });
   return {...info._doc,tac};
 };
