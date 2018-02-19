@@ -177,4 +177,21 @@ tacSchema.statics.updateHistoryByPC = async function(userName, doc){
   })
 };
 
+
+tacSchema.statics.updateTacWithImageByPC = async function(req){
+  const curImage = (await this.findOne({_id:req.body._id})).imagePath;
+  if(curImage){
+    fs.unlink('./'+curImage,(err)=>{
+      if(err)console.log(err);
+    })}
+  await this.findByIdAndUpdate(req.body._id,{
+    $set:{
+      imagePath:req.file.path,
+      imageWidth:null,
+      imageHeight:null,
+    }
+  });
+
+};
+
 module.exports = mongoose.model('tac',tacSchema,'tac');

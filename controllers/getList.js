@@ -3,6 +3,7 @@ const tacModel = require('../models/tac');
 const authModel = require('../models/auth');
 const superAgent = require('superagent');
 require('superagent-charset')(superAgent);
+const fs = require('fs');
 
 const cheerio =require('cheerio');
 const phantom = require('phantom');
@@ -24,17 +25,6 @@ exports.query = (req,res)=>{
   })()
 };
 
-
-//旧版回调函数路由， 备用录用，防止神马乱七八糟BUG
-// exports._query = (req,res)=>{
-//   getListModel._query(req.body.query,(err, doc)=>{
-//     if(err) console.log(err);
-//     //console.log('查询结果',doc);
-//     res.send(doc)
-//   });
-// };
-
-
 exports.updates =async (req, res) =>{
   //如果请求体里面什么都没有，则不修改
   if(Object.keys(req.body.update).length === 0) return res.send(JSON.stringify([]));
@@ -46,10 +36,15 @@ exports.updates =async (req, res) =>{
   const deleteHistoryPromise = _deleteTac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
     $pull:{history:{TAC:_tac.TAC}}
   },{multi:true}));
-
-
-  const updateTac = tac.filter(_tac=>_tac.TAC !== 0);
+  //删除TAC信息
   const deleteTACPromise = deleteTac.map(_tac=>tacModel.findByIdAndRemove(_tac._id));
+
+  //删除照片
+  deleteTac.forEach(_tac=>fs.unlink(_tac.imagePath,err=>{
+    if(err)console.log(err)
+  }));
+  //把TAC没有修改为零的数据提取出来
+  const updateTac = tac.filter(_tac=>_tac.TAC !== 0);
   const updateTACPromise = updateTac.map(_tac=>tacModel.findByIdAndUpdate(_tac._id,{
     $set:{'品牌1':newValue['厂商(中文)'],'型号1':newValue['型号'],TAC:_tac.TAC}
   }));
@@ -190,17 +185,7 @@ const getDetail = async(url)=>{
   await detail.forEach((item, index)=>{
     switch(item){
       case '支持频段':
-        //list3['支持TD-LTE频段'] = detail[index + 1].includes('TD-LTE')? detail[index + 1].match(/TD-LTE\s([^\\]+)\n/)[1] :'';
         list3['支持TD-LTE频段'] = detail[index+1];
-        // let i =0;
-        // list3['网络制式'] = ['TD-SCDMA','GSM','CDMA','EDGE','WCDMA','CDMA2000','CDMA 1X',
-        //   'CDMA EVDO'].reduce((pre, cur)=>{
-        //   i++;
-        //   if(detail[index + 1].includes(cur)){
-        //     return pre.concat(i)
-        //   }else{
-        //     return pre
-        //   }},[]).toString();
         list3['网络制式'] = detail[index + 1];
         list3['频段'] = detail[index + 1];
 

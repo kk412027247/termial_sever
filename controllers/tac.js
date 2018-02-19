@@ -122,3 +122,11 @@ exports.deleteTacWithImage = (req, res) => {
   })().then(success=>res.send(JSON.stringify(success)))
     .catch(err=>res.send(JSON.stringify(err)))
 };
+
+exports.updateTacWithImageByPC = async(req, res)=>{
+  await Promise.all([
+    tacModel.updateTacWithImageByPC(req),
+    authModel.updateTacWithImageByPC(req)
+  ]);
+  res.send(JSON.stringify('success'))
+};
