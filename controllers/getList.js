@@ -36,15 +36,28 @@ exports.query = (req,res)=>{
 
 
 exports.updates =async (req, res) =>{
-  let {tac, ...newValue} = req.body.update;
-  const updateTACPromise = tac.map(_id=>tacModel.findByIdAndUpdate(_id,{
-    $set:{'品牌1':newValue['厂商(中文)'],'型号1':newValue['型号']}
+  //如果请求体里面什么都没有，则不修改
+  if(Object.keys(req.body.update).length === 0) return res.send(JSON.stringify([]));
+  const {tac, ...newValue} = req.body.update;
+  const deleteTac = tac.filter(_tac=>_tac.TAC === 0);
+  //把TAC修改为0的数据提取出来，再删除个人中心里。
+  const _deleteTACPromise = deleteTac.map(_tac=>tacModel.findOne({_id:_tac._id}));
+  const _deleteTac = await Promise.all(_deleteTACPromise);
+  const deleteHistoryPromise = _deleteTac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
+    $pull:{history:{TAC:_tac.TAC}}
+  },{multi:true}));
+
+
+  const updateTac = tac.filter(_tac=>_tac.TAC !== 0);
+  const deleteTACPromise = deleteTac.map(_tac=>tacModel.findByIdAndRemove(_tac._id));
+  const updateTACPromise = updateTac.map(_tac=>tacModel.findByIdAndUpdate(_tac._id,{
+    $set:{'品牌1':newValue['厂商(中文)'],'型号1':newValue['型号'],TAC:_tac.TAC}
   }));
-  const updateHistoryPromise = tac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
+  const updateHistoryPromise = updateTac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
     $set:{'history.$.品牌1':newValue['厂商(中文)'],'history.$.型号1':newValue['型号']}
   },{multi:true}));
-  Promise.all([...updateTACPromise,...updateHistoryPromise]);
-  const result = await getListModel.findByIdAndUpdate(newValue._id,newValue);
+  await Promise.all([...updateTACPromise, ...updateHistoryPromise, ...deleteTACPromise, ...deleteHistoryPromise]);
+  const result = await getListModel.findByIdAndUpdate(newValue._id, newValue);
   res.send(JSON.stringify(result));
 };
 
