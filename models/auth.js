@@ -211,7 +211,16 @@ authSchema.statics.updateTacWithImageByPC = async function(req){
       upsert:true
     })
   }
+};
 
+authSchema.statics.deleteTACImageByPC = async function(req){
+  if(!! await this.findOne({history:{$elemMatch: {status: 'saved', _id: mongoose.Types.ObjectId(req.body._id)}}})){
+    await this.updateOne({
+      history:{ $elemMatch: {status: 'saved', _id: mongoose.Types.ObjectId(req.body._id)}}
+    },{
+      $set:{'history.$.imagePath':null}
+    })
+  }
 };
 
 

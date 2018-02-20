@@ -54,6 +54,7 @@ router.post('/updateTacWithImageByPC',check.create, upload.single('image'), tacC
 
 //删除
 router.post('/deleteTacWithImage', check.create, tacController.deleteTacWithImage);
+router.post('/deleteTACImageByPC', check.create, tacController.deleteTACImageByPC);
 
 //保存数据
 router.post('/saveUploadTac', check.basie, tacController.saveUploadTac);

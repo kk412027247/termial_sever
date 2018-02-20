@@ -191,7 +191,18 @@ tacSchema.statics.updateTacWithImageByPC = async function(req){
       imageHeight:null,
     }
   });
+};
 
+
+
+tacSchema.statics.deleteTACImageByPC = async function(req){
+  const image = (await this.findOne({_id:req.body._id})).imagePath;
+  fs.unlink('./'+image,err=>console.log(err));
+  await this.findByIdAndUpdate(req.body._id,{$set:{
+    imagePath : null ,
+    imageWidth : null,
+    imageHeight : null,
+  }})
 };
 
 module.exports = mongoose.model('tac',tacSchema,'tac');

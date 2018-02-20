@@ -52,7 +52,6 @@ exports.createTac = (req, res)=>{
 //app端用的路由
 exports.createTacWithImage = (req, res) =>{
   (async ()=>{
-    //console.log(req.body);
     const result = await tacModel.createTacWithImage(req);
     const userName = req.session.userInfo.userName;
 
@@ -127,6 +126,14 @@ exports.updateTacWithImageByPC = async(req, res)=>{
   await Promise.all([
     tacModel.updateTacWithImageByPC(req),
     authModel.updateTacWithImageByPC(req)
+  ]);
+  res.send(JSON.stringify('success'))
+};
+
+exports.deleteTACImageByPC = async (req,res)=>{
+  await Promise.all([
+    tacModel.deleteTACImageByPC(req),
+    authModel.deleteTACImageByPC(req)
   ]);
   res.send(JSON.stringify('success'))
 };
