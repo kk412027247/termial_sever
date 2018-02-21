@@ -30,8 +30,8 @@ router.post('/add', getListController.add);
 
 //查询
 router.post('/query',check.query ,getListController.query);
-router.post('/getInfoTac', check.basie, getListController.getInfoTac);
-router.post('/getTacForInfo', check.basie, getListController.getTacForInfo);
+router.post('/getInfoTac', check.query, getListController.getInfoTac);
+router.post('/getTacForInfo', check.query, getListController.getTacForInfo);
 router.post('/getTacId',check.update,tacController.getTacId);
 router.post('/searchUserHistory',check.query,authController.searchUserHistory);
 router.get('/getUserHistory',check.basie, authController.getUserHistory);

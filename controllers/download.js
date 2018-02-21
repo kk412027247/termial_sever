@@ -118,7 +118,6 @@ exports.downloadTacByDate = (req, res)=>{
   const fileName = Date.now();
   const file = `./public/tac&date${fileName}.csv`;
   const {startDate, endDate} = req.query;
-
   tacModel
     .count({date: {$gte: new Date(startDate), $lt: new Date(endDate)}})
     .then(number=>{
@@ -135,8 +134,6 @@ exports.downloadTacByDate = (req, res)=>{
       }
     });
 };
-
-
 
 
 exports.downloadInfoByDate = (req, res)=>{

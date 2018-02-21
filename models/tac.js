@@ -35,13 +35,12 @@ const tacSchema = new mongoose.Schema({
   "型号7" : String,
   "可信度7" : Number,
   "新可信度7" : Number,
+  //图片认证,如果有图片地址，就为已经验证
   imagePath:String,
   imageWidth:Number,
   imageHeight:Number,
   auth:String,
-  //图片认证,如果有
-  check:Boolean,
-  date:{type: Date, default: Date.now()}
+  date:{type: Date, default: new Date()}
 });
 
 tacSchema.plugin(mongooseToCsv,{

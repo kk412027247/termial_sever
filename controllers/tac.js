@@ -39,11 +39,12 @@ exports.createTac = (req, res)=>{
     //手机品牌和型号提取出来，
     const queries = [];
     for(let query of req.body.docs){
-      queries.push(query['品牌1']+query['型号1'])
+      queries.push(query['品牌1']+' '+query['型号1'])
     }
     //把关键词抽成数组，提交到爬虫里
     await spiderController.handleSpider(queries);
-    return authModel.updateHistory(req.session.userInfo.userName, {before:'' ,after:docs})
+    // 取消历史修改记录
+    // return authModel.updateHistory(req.session.userInfo.userName, {before:'' ,after:docs})
   })().then(success=>res.send(success))
     .catch(err=>res.send(err));
 };
