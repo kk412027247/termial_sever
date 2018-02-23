@@ -11,6 +11,7 @@ const authSchema = new mongoose.Schema({
   'history':Array
 });
 
+
 authSchema.statics.signIn = function(info, callback){
   this.findOne(info,callback)
 };
