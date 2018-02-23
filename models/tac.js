@@ -40,6 +40,7 @@ const tacSchema = new mongoose.Schema({
   imageWidth:Number,
   imageHeight:Number,
   auth:String,
+  //Date.now（）会出现时间不准的问题，所以这里用new Date()
   date:{type: Date, default: new Date()}
 });
 
