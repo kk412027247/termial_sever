@@ -318,7 +318,11 @@ exports.handleSpider = async (queries) => {
         result.exist.push(check);
       }
     }else{
-      await getListModel.create(deviceInfo);
+      //先检验一下数据是否存在，如果不存在就新增一条数据
+      const check = await getListModel.findOne(deviceInfo);
+      if(!check){
+        await getListModel.create(deviceInfo);
+      }
       result.errKeyword.push(generalUrl.errKeyword);
     }
   }
