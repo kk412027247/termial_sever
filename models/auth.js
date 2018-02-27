@@ -44,7 +44,7 @@ authSchema.statics.history = async function(userName,doc){
   )
 };
 
-authSchema.statics.updateUserHistory = async function(req){
+authSchema.statics.updateUserHistory = async function(req,result){
   //删除缓存中的 记录占照片
   const file = await this.findOne({
     userName:req.session.userInfo.userName,
@@ -76,12 +76,27 @@ authSchema.statics.updateUserHistory = async function(req){
       'history.$.date':new Date()
     },
   });
+  //把历史中录入的同样型号的也改了
+  await this.update({
+    userName:req.session.userInfo.userName,
+    'history.型号1':result['型号1'],
+    'history.品牌1':result['品牌1'],
+  },{
+    $set:{
+      'history.$.型号1':req.body.brand,
+      'history.$.品牌1':req.body.model,
+    }
+  },{
+    multi:true
+  });
+
   return this.update({
       userName:req.session.userInfo.userName
   },{
     $push:{history:{$each:[],$sort:{date:-1}}}
   })
 };
+
 
 // 搜索个人中心记录
 authSchema.statics.searchUserHistory = async function(req){
