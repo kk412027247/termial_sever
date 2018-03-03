@@ -331,12 +331,14 @@ exports.add=(req, res)=>{
 
 const getInfoTac = async (id)=>{
   const info =await getListModel.findOne(id);
-  const tac = await tacModel.find({
+  let tac = await tacModel.find({
     "品牌1":info["厂商(中文)"], "型号1":info["型号"]
   },{
     "TAC":1,"imagePath":1,
   });
-  return {...info._doc,tac};
+  //  把TAC数据前面的' 去除。
+  tac = tac.map(_tac=>({_id:_tac._id, TAC:_tac.TAC.replace(/'/,'')}));
+  return {...info._doc, tac};
 };
 
 exports.getInfoTac = (req,res)=>{
