@@ -372,32 +372,15 @@ getListSchema.statics.query = async function(query){
       "厂商(中文)":1,
       "品牌(英文)":1,
       "型号":1,
+      "子型号":1,
       "上市时间(年月，格式：YYYYMM)":1,
       "市场价格":1,
       "操作系统":1,
-      "CPU数量":1,
-      "手机存储空间大小":1,
   }).limit(20);
 };
 
 
-//旧版回调函数路由， 备用录用，防止神马乱七八糟BUG
-getListSchema.statics._query = function (query,callback){
-  //console.log(query);
-  this.find({
-      $text:{$search: query}
-    },{
-      "厂商(中文)":1,
-      "品牌(英文)":1,
-      "型号":1,
-      "上市时间(年月，格式：YYYYMM)":1,
-      "市场价格":1,
-      "操作系统":1,
-      "CPU数量":1,
-      "手机存储空间大小":1,
-    },callback
-  ).limit(20)
-};
+
 
 getListSchema.statics.updates = function(update, callback){
   //console.log(update._id);

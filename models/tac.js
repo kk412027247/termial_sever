@@ -6,7 +6,7 @@ const fs = require('fs');
 const doNoting = (...arg) => arg;
 
 const tacSchema = new mongoose.Schema({
-  "TAC" : Number,
+  "TAC" : String,
   "品牌1" : String,
   "型号1" : String,
   "可信度1" : Number,

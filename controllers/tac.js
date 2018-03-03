@@ -108,7 +108,6 @@ exports.updateTacWithImage = (req, res) => {
       await getListModel.update({"厂商(中文)":result['品牌1'],"型号":result['型号1']},{
         $set:{"厂商(中文)":req.body.brand, "型号":req.body.model}
       },{multi:true});
-      //todo 添加一条修改参数列表信息的操作
     }else{
       //其他条件，只修改个人中心里面的缓存数据
       await authModel.updateUserHistory(req);

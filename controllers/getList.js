@@ -11,6 +11,7 @@ const phantom = require('phantom');
 //合并型号查询，TAC查询到一个窗口
 exports.query = (req,res)=>{
   (async ()=>{
+    //如果传过来是一串数字，代表传来的是TAC，则进行TAC查询
     if(!!Number(req.body.query.replace(/"/g,''))){
       const deviceInfo = await getTacForInfo(req.body.query.replace(/"/g,''));
       if(!!deviceInfo){
