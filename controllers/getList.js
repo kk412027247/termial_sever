@@ -13,7 +13,8 @@ exports.query = (req,res)=>{
   (async ()=>{
     //如果传过来是一串数字，代表传来的是TAC，则进行TAC查询
     if(!!Number(req.body.query.replace(/"/g,''))){
-      const deviceInfo = await getTacForInfo(req.body.query.replace(/"/g,''));
+      //tac数据前面有个' 查询的时候要加回来
+      const deviceInfo = await getTacForInfo("'"+req.body.query.replace(/"/g,''));
       if(!!deviceInfo){
         res.send(deviceInfo)
       }else{
@@ -375,3 +376,5 @@ exports.getTacForInfo = (req, res) =>{
   .then(result=>res.send(JSON.stringify(result)))
   .catch(err=>res.send(JSON.stringify(err)))
 };
+
+
