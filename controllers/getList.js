@@ -27,14 +27,15 @@ exports.query = (req,res)=>{
   })()
 };
 
+
 exports.updates =async (req, res) =>{
   //如果请求体里面什么都没有，则不修改
   if(Object.keys(req.body.update).length === 0) return res.send(JSON.stringify([]));
   const {tac, ...newValue} = req.body.update;
-  const deleteTac = tac.filter(_tac=>_tac.TAC === 0);
   //把TAC修改为0的数据提取出来，再删除个人中心里。
-  const _deleteTACPromise = deleteTac.map(_tac=>tacModel.findOne({_id:_tac._id}));
-  const _deleteTac = await Promise.all(_deleteTACPromise);
+  const deleteTac = tac.filter(_tac=>_tac.TAC === "'0");
+  const _deleteTac = await Promise.all(deleteTac.map(tac=>tacModel.findById(tac._id)));
+ 
   const deleteHistoryPromise = _deleteTac.map(_tac=>authModel.update({'history.TAC':_tac.TAC},{
     $pull:{history:{TAC:_tac.TAC}}
   },{multi:true}));
@@ -42,11 +43,15 @@ exports.updates =async (req, res) =>{
   const deleteTACPromise = deleteTac.map(_tac=>tacModel.findByIdAndRemove(_tac._id));
 
   //删除照片
-  deleteTac.forEach(_tac=>fs.unlink(_tac.imagePath,err=>{
-    if(err)console.log(err)
-  }));
+  deleteTac.forEach(_tac=>{
+    if(!_tac.imagePath) return;
+    fs.unlink(_tac.imagePath,err=>{
+      if(err)console.log(err)
+    })
+  });
+  
   //把TAC没有修改为零的数据提取出来
-  const updateTac = tac.filter(_tac=>_tac.TAC !== 0);
+  const updateTac = tac.filter(_tac=>_tac.TAC !== "'0");
   const updateTACPromise = updateTac.map(_tac=>tacModel.findByIdAndUpdate(_tac._id,{
     $set:{'品牌1':newValue['厂商(中文)'],'型号1':newValue['型号'],TAC:_tac.TAC}
   }));

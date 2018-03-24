@@ -59,11 +59,12 @@ exports.uploadTac = (req, res)=>{
   //异步转同步操作
   (async()=>{
     let i = 0;
+    //已存在数据，重复上传的数据，有效数据。
     const _data = {dataExist:[],uploadExist:[],valid:[]};
     for(let tacInfo of data){
-      const check = await tacModel.findOne({'TAC':tacInfo['TAC']});
+      const check = await tacModel.findOne({'TAC':"'"+tacInfo['TAC']});
       if(!!check){
-        _data.dataExist=[..._data.dataExist, {invalid: false, ...check._doc}];
+        _data.dataExist=[..._data.dataExist, {invalid: false, ...check._doc, TAC:check.TAC.replace(/'/,'')}];
         _data.uploadExist=[..._data.uploadExist, {_id: check._id, invalid: false, ...tacInfo}];
       }else{
         _data.valid = [..._data.valid, {_id: ++i, invalid: false, ...tacInfo}]
