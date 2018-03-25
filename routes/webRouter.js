@@ -50,7 +50,7 @@ router.post('/updateTacWithImage',check.create, upload.single('image'), tacContr
 router.post('/updateHistoryByPC',check.create, authController.updateHistoryByPC);
 router.post('/updateTacWithImageByPC',check.create, upload.single('image'), tacController.updateTacWithImageByPC);
 // 以下这条路由是以前做历史储存用的，太废,放弃了这个版本。
-//router.post('/updateTac', check.basie, tacController.updateTac);
+router.post('/updateTac', check.basie, tacController.updateTac);
 
 //删除
 router.post('/deleteTacWithImage', check.create, tacController.deleteTacWithImage);
